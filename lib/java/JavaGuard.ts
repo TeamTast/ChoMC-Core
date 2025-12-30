@@ -1,15 +1,15 @@
-import { exec } from 'child_process'
-import { pathExists, readdir } from 'fs-extra'
+import {exec} from 'child_process'
+import {pathExists, readdir} from 'fs-extra'
 import got from 'got'
-import { Architecture, JdkDistribution, Platform } from 'Helios-distribution-types'
-import { dirname, join } from 'path'
-import { promisify } from 'util'
-import { LauncherJson } from '../model/mojang/LauncherJson'
-import { LoggerUtil } from '../util/LoggerUtil'
+import {Architecture, JdkDistribution, Platform} from 'Helios-distribution-types'
+import {dirname, join} from 'path'
+import {promisify} from 'util'
+import {LauncherJson} from '../model/mojang/LauncherJson'
+import {LoggerUtil} from '../util/LoggerUtil'
 import Registry from 'winreg'
 import semver from 'semver'
-import { Asset, HashAlgo } from '../dl'
-import { extractTarGz, extractZip } from '../common/util/FileUtils'
+import {Asset, HashAlgo} from '../dl'
+import {extractTarGz, extractZip} from '../common/util/FileUtils'
 
 const log = LoggerUtil.getLogger('JavaGuard')
 
@@ -493,8 +493,10 @@ export async function validateSelectedJvm(path: string, semverRange: string): Pr
  * 参照: https://github.com/AdoptOpenJDK/openjdk-support/issues/101
  *
  * @param {number} major 取得するJavaのメジャーバージョン。
+ * @param {string} dataDir ランチャーデータディレクトリへのパス。
+ * @param {JdkDistribution} [distribution] 使用するJDKディストリビューション。指定されていない場合、プラットフォームに基づいて自動的に選択されます。
  *
- * @returns {Promise.<RemoteJdkDistribution | null>} JDKダウンロードデータを含むオブジェクトに解決されるPromise。
+ * @returns {Promise.<Asset | null>} JDKダウンロードデータを含むオブジェクトに解決されるPromise。
  */
 export async function latestOpenJDK(major: number, dataDir: string, distribution?: JdkDistribution): Promise<Asset | null> {
 
