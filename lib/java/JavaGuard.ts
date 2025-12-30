@@ -418,10 +418,8 @@ export function filterApplicableJavaPaths(resolvedSettings: { [path: string]: Ho
         .filter(x => x != null)
 
     // オプションでフィルタリング。
-    const jvmDetails = jvmDetailsUnfiltered
+    return jvmDetailsUnfiltered
         .filter(details => semver.satisfies(details.semverStr, semverRange))
-
-    return jvmDetails
 }
 
 export function rankApplicableJvms(details: JvmDetails[]): void {
