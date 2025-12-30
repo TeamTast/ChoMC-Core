@@ -1,30 +1,31 @@
-# Helios-Core
+# ChoMC-Core
 
-A library containing core mechanisms for Helios Launcher
+ChoMC Launcherのコアメカニズムを含むライブラリ
+https://github.com/dscalzi/helios-core からフォーク
 
-### Requirements
+### 要件
 
-* Node.js 20 (minimum)
+* Node.js 20 (最小)
 
-helios-core will always use the same minimum node version as Helios Launcher.
+chomc-core は常に ChoMC Launcher と同じ最小ノードバージョンを利用します。
 
-## Auth
+## 認証
 
-### Supported Auth Providers
+### サポートされている認証プロバイダー
 
 * Mojang
 * Microsoft
 
-### Provider Information
+### プロバイダー情報
 
 #### Mojang
 
-Mojang authentication makes use of the Yggdrasil scheme. See https://wiki.vg/Authentication
+Mojang認証はYggdrasilスキームを使用します。https://wiki.vg/Authentication を参照してください。
 
 #### Microsoft
 
-Microsoft authentication uses OAuth 2.0 with Azure. See https://wiki.vg/Microsoft_Authentication_Scheme
+Microsoft認証はAzureでOAuth 2.0を使用します。https://wiki.vg/Microsoft_Authentication_Scheme を参照してください。
 
-### LICENSE
+### ライセンス
 
 LGPL-3.0

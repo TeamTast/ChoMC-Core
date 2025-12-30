@@ -1,8 +1,8 @@
 {
-  "name": "helios-core",
+  "name": "chomc-core",
   "version": "2.2.4",
-  "description": "A library containing core mechanisms for Helios Launcher",
-  "main": "dist/index.js",
+  "description": "A library containing core mechanisms for ChoMC Launcher. Forked by Helios",
+  "main": "./dist/index.js",
   "scripts": {
     "clean": "rimraf dist",
     "tsc": "tsc",
@@ -44,19 +44,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dscalzi/helios-core.git"
+    "url": "git+https://github.com/TeamTast/ChoMC-Core.git"
   },
-  "keywords": [
-    "helios-launcher",
-    "helios-core",
-    "minecraft-launcher"
-  ],
-  "author": "Daniel Scalzi",
+  "author": "Team Tast",
   "license": " LGPL-3.0-only",
-  "bugs": {
-    "url": "https://github.com/dscalzi/helios-core/issues"
-  },
-  "homepage": "https://github.com/dscalzi/helios-core#readme",
   "devDependencies": {
     "@stylistic/eslint-plugin-ts": "^3.1.0",
     "@types/chai": "^4.3.20",
