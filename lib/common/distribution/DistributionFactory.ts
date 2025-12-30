@@ -1,4 +1,4 @@
-import { Distribution, Server, Module, Type, Required as ChoRequired, JavaVersionProps, JavaPlatformOptions, Platform, JdkDistribution } from 'Helios-distribution-types'
+import { Distribution, Server, Module, Type, Required as ChoRequired, JavaVersionProps, JavaPlatformOptions, Platform, JdkDistribution } from 'chomc-distribution-types'
 import { MavenComponents, MavenUtil } from '../util/MavenUtil'
 import { join } from 'path'
 import { LoggerUtil } from '../../util/LoggerUtil'

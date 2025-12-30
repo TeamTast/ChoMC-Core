@@ -1,4 +1,4 @@
-import { Server } from 'Helios-distribution-types'
+import { Server } from 'chomc-distribution-types'
 
 export function getMainServer(servers: Server[]): Server {
 
