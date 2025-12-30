@@ -1,53 +1,50 @@
 import { RestResponse } from '../../common/rest/RestResponse'
 
 /**
- * Various error codes from any point of the Microsoft authentication process.
+ * Microsoft認証プロセスの任意の時点からの様々なエラーコード
  */
 export enum MicrosoftErrorCode {
     /**
-     * Unknown Error
+     * 不明なエラー
      */
     UNKNOWN,
     /**
-     * Profile Error
-     * 
-     * Account has not set up a minecraft profile or does not own the game.
-     * 
-     * Note that Xbox Game Pass users who haven't logged into the new Minecraft
-     * Launcher at least once will not return a profile, and will need to login
-     * once after activating Xbox Game Pass to setup their Minecraft username.
-     * 
+     * プロファイルエラー
+     *
+     * アカウントがMinecraftプロファイルを設定していないか、ゲームを所有していない
+     *
+     * Xbox Game Passユーザーで、新しいMinecraft Launcherに少なくとも一度もログインしていない場合、
+     * プロファイルは返されず、Minecraftユーザー名を設定するためにXbox Game Passを有効にした後、
+     * 一度ログインする必要があることに注意
+     *
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Get_the_profile
      */
     NO_PROFILE,
     /**
-     * XSTS Error
-     * 
-     * The account doesn't have an Xbox account. Once they sign up for one
-     * (or login through minecraft.net to create one) then they can proceed
-     * with the login. This shouldn't happen with accounts that have purchased
-     * Minecraft with a Microsoft account, as they would've already gone
-     * through that Xbox signup process.
-     * 
+     * XSTSエラー
+     *
+     * アカウントにXboxアカウントがない。Xboxアカウントにサインアップする（またはminecraft.netからログインして作成する）と、
+     * ログインを続行できる。MicrosoftアカウントでMinecraftを購入したアカウントでは、
+     * すでにXboxサインアッププロセスを経ているため、これは発生しないはずである
+     *
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Authenticate_with_XSTS
      */
     NO_XBOX_ACCOUNT = 2148916233,
     /**
-     * XSTS Error
-     * 
-     * The account is from a country where Xbox Live is not available/banned.
-     * 
+     * XSTSエラー
+     *
+     * アカウントがXbox Liveが利用できない/禁止されている国のものである
+     *
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Authenticate_with_XSTS
      */
     XBL_BANNED = 2148916235,
     /**
-     * XSTS Error
-     * 
-     * The account is a child (under 18) and cannot proceed unless the account
-     * is added to a Family by an adult. This only seems to occur when using a
-     * custom Microsoft Azure application. When using the Minecraft launchers
-     * client id, this doesn't trigger.
-     * 
+     * XSTSエラー
+     *
+     * アカウントが子供（18歳未満）であり、大人がファミリーに追加しない限り続行できない
+     * これは、カスタムMicrosoft Azureアプリケーションを使用している場合にのみ発生するようである
+     * MinecraftランチャーのクライアントIDを使用している場合、これはトリガーされない
+     *
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Authenticate_with_XSTS
      */
     UNDER_18 = 2148916238
@@ -58,9 +55,9 @@ export interface MicrosoftResponse<T> extends RestResponse<T> {
 }
 
 /**
- * Resolve the error response code from the response body.
- * 
- * @param body The microsoft error body response.
+ * レスポンスボディからエラーレスポンスコードを解決する
+ *
+ * @param body Microsoftエラーボディレスポンス
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function decipherErrorCode(body: any): MicrosoftErrorCode {

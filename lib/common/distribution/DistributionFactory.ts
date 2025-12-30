@@ -1,4 +1,4 @@
-import { Distribution, Server, Module, Type, Required as HeliosRequired, JavaVersionProps, JavaPlatformOptions, Platform, JdkDistribution } from 'helios-distribution-types'
+import { Distribution, Server, Module, Type, Required as ChoRequired, JavaVersionProps, JavaPlatformOptions, Platform, JdkDistribution } from 'Helios-distribution-types'
 import { MavenComponents, MavenUtil } from '../util/MavenUtil'
 import { join } from 'path'
 import { LoggerUtil } from '../../util/LoggerUtil'
@@ -6,34 +6,35 @@ import { mcVersionAtLeast } from '../util/MojangUtils'
 
 const logger = LoggerUtil.getLogger('DistributionFactory')
 
-export class HeliosDistribution {
+export class ChoDistribution {
 
     private mainServerIndex!: number
 
-    public readonly servers: HeliosServer[]
+    public readonly servers: ChoServer[]
 
     constructor(
         public readonly rawDistribution: Distribution,
         commonDir: string,
         instanceDir: string
     ) {
+        // メインサーバーを決定（なければ先頭）し、サーバーのラッパーを構築。
         this.resolveMainServerIndex()
-        this.servers = this.rawDistribution.servers.map(s => new HeliosServer(s, commonDir, instanceDir))
+        this.servers = this.rawDistribution.servers.map(s => new ChoServer(s, commonDir, instanceDir))
     }
 
     private resolveMainServerIndex(): void {
 
-        if(this.rawDistribution.servers.length > 0) {
-            for(let i=0; i<this.rawDistribution.servers.length; i++) {
-                if(this.mainServerIndex == null) {
-                    if(this.rawDistribution.servers[i].mainServer) {
+        if (this.rawDistribution.servers.length > 0) {
+            for (let i = 0; i < this.rawDistribution.servers.length; i++) {
+                if (this.mainServerIndex == null) {
+                    if (this.rawDistribution.servers[i].mainServer) {
                         this.mainServerIndex = i
                     }
                 } else {
                     this.rawDistribution.servers[i].mainServer = false
                 }
             }
-            if(this.mainServerIndex == null) {
+            if (this.mainServerIndex == null) {
                 this.mainServerIndex = 0
                 this.rawDistribution.servers[this.mainServerIndex].mainServer = true
             }
@@ -43,19 +44,19 @@ export class HeliosDistribution {
         }
     }
 
-    public getMainServer(): HeliosServer | null {
+    public getMainServer(): ChoServer | null {
         return this.mainServerIndex < this.servers.length ? this.servers[this.mainServerIndex] : null
     }
 
-    public getServerById(id: string): HeliosServer | null {
+    public getServerById(id: string): ChoServer | null {
         return this.servers.find(s => s.rawServer.id === id) || null
     }
 
 }
 
-export class HeliosServer {
+export class ChoServer {
 
-    public readonly modules: HeliosModule[]
+    public readonly modules: ChoModule[]
     public readonly hostname: string
     public readonly port: number
     public readonly effectiveJavaOptions: Required<JavaVersionProps>
@@ -69,16 +70,17 @@ export class HeliosServer {
         this.hostname = hostname
         this.port = port
         this.effectiveJavaOptions = this.parseEffectiveJavaOptions()
-        this.modules = rawServer.modules.map(m => new HeliosModule(m, rawServer.id, commonDir, instanceDir))
+        // 検証・ダウンロードで参照が安定するよう、先にモジュールツリーを構築。
+        this.modules = rawServer.modules.map(m => new ChoModule(m, rawServer.id, commonDir, instanceDir))
     }
 
     private parseAddress(): { hostname: string, port: number } {
-        // Srv record lookup here if needed.
-        if(this.rawServer.address.includes(':')) {
+        // 必要なら SRV 参照もここで処理する想定。
+        if (this.rawServer.address.includes(':')) {
             const pieces = this.rawServer.address.split(':')
             const port = Number(pieces[1])
 
-            if(!Number.isInteger(port)) {
+            if (!Number.isInteger(port)) {
                 throw new Error(`Malformed server address for ${this.rawServer.id}. Port must be an integer!`)
             }
 
@@ -93,7 +95,7 @@ export class HeliosServer {
         const options: JavaPlatformOptions[] = this.rawServer.javaOptions?.platformOptions ?? []
 
         const mergeableProps: JavaVersionProps[] = []
-        for(const option of options) {
+        for (const option of options) {
 
             if (option.platform === process.platform) {
                 if (option.architecture === process.arch) {
@@ -110,14 +112,15 @@ export class HeliosServer {
         }
 
         const merged: JavaVersionProps = {}
-        for(let i=mergeableProps.length-1; i>=0; i--) {
-            if(mergeableProps[i] != null) {
+        for (let i = mergeableProps.length - 1; i >= 0; i--) {
+            if (mergeableProps[i] != null) {
                 merged.distribution = mergeableProps[i].distribution
                 merged.supported = mergeableProps[i].supported
                 merged.suggestedMajor = mergeableProps[i].suggestedMajor
             }
         }
 
+        // MCバージョンとプラットフォームから導出したデフォルトで未設定項目を補完。
         return this.defaultUndefinedJavaOptions(merged)
     }
 
@@ -131,9 +134,9 @@ export class HeliosServer {
     }
 
     private defaultJavaVersion(): [string, number] {
-        if(mcVersionAtLeast('1.20.5', this.rawServer.minecraftVersion)) {
+        if (mcVersionAtLeast('1.20.5', this.rawServer.minecraftVersion)) {
             return ['>=21.x', 21]
-        } else if(mcVersionAtLeast('1.17', this.rawServer.minecraftVersion)) {
+        } else if (mcVersionAtLeast('1.17', this.rawServer.minecraftVersion)) {
             return ['>=17.x', 17]
         } else {
             return ['8.x', 8]
@@ -143,15 +146,15 @@ export class HeliosServer {
     private defaultJavaPlatform(): JdkDistribution {
         return process.platform === Platform.DARWIN ? JdkDistribution.CORRETTO : JdkDistribution.TEMURIN
     }
- 
+
 }
 
-export class HeliosModule {
+export class ChoModule {
 
-    public readonly subModules: HeliosModule[]
+    public readonly subModules: ChoModule[]
 
     private readonly mavenComponents: Readonly<MavenComponents>
-    private readonly required: Readonly<Required<HeliosRequired>>
+    private readonly required: Readonly<Required<ChoRequired>>
     private readonly localPath: string
 
     constructor(
@@ -165,29 +168,29 @@ export class HeliosModule {
         this.required = this.resolveRequired()
         this.localPath = this.resolveLocalPath(commonDir, instanceDir)
 
-        if(this.rawModule.subModules != null) {
-            this.subModules = this.rawModule.subModules.map(m => new HeliosModule(m, serverId, commonDir, instanceDir))
+        if (this.rawModule.subModules != null) {
+            this.subModules = this.rawModule.subModules.map(m => new ChoModule(m, serverId, commonDir, instanceDir))
         } else {
             this.subModules = []
         }
-        
+
     }
 
     private resolveMavenComponents(): MavenComponents {
 
         // Files need not have a maven identifier if they provide a path.
-        if(this.rawModule.type === Type.File && this.rawModule.artifact.path != null) {
+        if (this.rawModule.type === Type.File && this.rawModule.artifact.path != null) {
             return null! as MavenComponents
         }
         // Version Manifests never provide a maven identifier.
-        if(this.rawModule.type === Type.VersionManifest) {
+        if (this.rawModule.type === Type.VersionManifest) {
             return null! as MavenComponents
         }
 
         const isMavenId = MavenUtil.isMavenIdentifier(this.rawModule.id)
 
-        if(!isMavenId) {
-            if(this.rawModule.type !== Type.File) {
+        if (!isMavenId) {
+            if (this.rawModule.type !== Type.File) {
                 throw new Error(`Module ${this.rawModule.name} (${this.rawModule.id}) of type ${this.rawModule.type} must have a valid maven identifier!`)
             } else {
                 throw new Error(`Module ${this.rawModule.name} (${this.rawModule.id}) of type ${this.rawModule.type} must either declare an artifact path or have a valid maven identifier!`)
@@ -196,14 +199,14 @@ export class HeliosModule {
 
         try {
             return MavenUtil.getMavenComponents(this.rawModule.id)
-        } catch(err) {
+        } catch (err) {
             throw new Error(`Failed to resolve maven components for module ${this.rawModule.name} (${this.rawModule.id}) of type ${this.rawModule.type}. Reason: ${(err as Error).message}`)
         }
-        
+
     }
 
-    private resolveRequired(): Required<HeliosRequired> {
-        if(this.rawModule.required == null) {
+    private resolveRequired(): Required<ChoRequired> {
+        if (this.rawModule.required == null) {
             return {
                 value: true,
                 def: true
@@ -218,8 +221,8 @@ export class HeliosModule {
 
     private resolveLocalPath(commonDir: string, instanceDir: string): string {
 
-        // Version Manifests have a pre-determined path.
-        if(this.rawModule.type === Type.VersionManifest) {
+        // バージョンマニフェストは事前に決定されたパスを持つ
+        if (this.rawModule.type === Type.VersionManifest) {
             return join(commonDir, 'versions', this.rawModule.id, `${this.rawModule.id}.json`)
         }
 
@@ -240,15 +243,16 @@ export class HeliosModule {
                 return join(commonDir, 'libraries', relativePath)
             case Type.ForgeMod:
             case Type.LiteMod:
-                // TODO Move to /mods/forge eventually..
+                // TODO いずれ /mods/forge に移動する..
                 return join(commonDir, 'modstore', relativePath)
             case Type.FabricMod:
                 return join(commonDir, 'mods', 'fabric', relativePath)
             case Type.File:
             default:
-                return join(instanceDir, this.serverId, relativePath) 
+                // インスタンス単位のファイルはサーバーディレクトリ配下に置く。
+                return join(instanceDir, this.serverId, relativePath)
         }
-        
+
     }
 
     public hasMavenComponents(): boolean {
@@ -259,7 +263,7 @@ export class HeliosModule {
         return this.mavenComponents
     }
 
-    public getRequired(): Readonly<Required<HeliosRequired>> {
+    public getRequired(): Readonly<Required<ChoRequired>> {
         return this.required
     }
 

@@ -45,11 +45,11 @@ export async function downloadFile(url: string, path: string, onProgress?: (prog
 
 
     const MAX_RETRIES = 10
-    let fileWriterStream: WriteStream = null!       // The write stream.
-    let retryCount = 0                              // The number of retries attempted.
-    let error: Error = null!                        // The caught error.
-    let retry = false                               // Should we retry.
-    let rethrow = false                             // Should we throw an error.
+    let fileWriterStream: WriteStream = null!       // 書き込みストリーム
+    let retryCount = 0                              // 試行された再試行回数
+    let error: Error = null!                        // キャッチされたエラー
+    let retry = false                               // 再試行すべきか
+    let rethrow = false                             // エラーをスローすべきか
 
     // Got's streaming retry API is nonexistant and their "example" is egregious.
     // To use their "api" you need to commit yourself to recursive callback hell.
@@ -79,7 +79,7 @@ export async function downloadFile(url: string, path: string, onProgress?: (prog
             retryCount++
             rethrow = true
 
-            // For now, only retry timeouts.
+            // 今のところ、タイムアウトのみ再試行する
             retry = retryCount <= MAX_RETRIES && retryableError(error)
 
             if(fileWriterStream) {
@@ -87,13 +87,13 @@ export async function downloadFile(url: string, path: string, onProgress?: (prog
             }
 
             if(onProgress && retry) {
-                // Reset progress on this asset. since we're going to retry.
+                // 再試行するため、このアセットの進捗をリセットする
                 onProgress({ transferred: 0, percent: 0, total: 0 })
             }
 
             if(retry) {
-                // Wait one second before retrying.
-                // This can become an exponential backoff, but I see no need for that right now.
+                // 再試行する前に1秒待つ
+                // これは指数バックオフになる可能性があるが、今はその必要性を感じない
                 await sleep(1000)
             }
         }
@@ -114,7 +114,7 @@ export async function downloadFile(url: string, path: string, onProgress?: (prog
 
 function retryableError(error: Error): boolean {
     if(error instanceof RequestError) {
-        // error.name === 'RequestError' means server did not respond.
+        // error.name === 'RequestError' はサーバーが応答しなかったことを意味する
         return error.name === 'RequestError' || error instanceof ReadError && error.code === 'ECONNRESET'
     } else {
         return false

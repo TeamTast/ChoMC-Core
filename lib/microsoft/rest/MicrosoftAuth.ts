@@ -4,11 +4,11 @@ import got, { HTTPError, RequestError } from 'got'
 import { decipherErrorCode, MicrosoftErrorCode, MicrosoftResponse } from './MicrosoftResponse'
 
 /* ***********************************/
-/*      Microsoft OAuth Models       */
+/*      Microsoft OAuth モデル       */
 /* ***********************************/
 
 /**
- * Common properties for a request to Microsoft's OAuth endpoint.
+ * MicrosoftのOAuthエンドポイントへのリクエストの共通プロパティ
  */
 export interface AbstractTokenRequest {
     client_id: string
@@ -16,16 +16,16 @@ export interface AbstractTokenRequest {
     redirect_uri: string
 }
 /**
- * Request body for getting a Microsoft OAuth Access Token from
- * an authorization code.
+ * 認証コードからMicrosoft OAuthアクセストークンを取得するための
+ * リクエストボディ
  */
 export interface AuthTokenRequest extends AbstractTokenRequest {
     grant_type: 'authorization_code'
     code: string
 }
 /**
- * Request body for getting a Microsoft OAuth Access Token by refreshing
- * an existing token.
+ * 既存のトークンをリフレッシュしてMicrosoft OAuthアクセストークンを取得するための
+ * リクエストボディ
  */
 export interface RefreshTokenRequest extends AbstractTokenRequest {
     grant_type: 'refresh_token'
@@ -33,7 +33,7 @@ export interface RefreshTokenRequest extends AbstractTokenRequest {
 }
 
 /**
- * Microsoft OAuth Response.
+ * Microsoft OAuth レスポンス
  */
 export interface AuthorizationTokenResponse {
     token_type: string
@@ -46,11 +46,11 @@ export interface AuthorizationTokenResponse {
 }
 
 /* ***********************************/
-/*         Xbox Live Models          */
+/*         Xbox Live モデル          */
 /* ***********************************/
 
 /**
- * Xbox Live Response.
+ * Xbox Live レスポンス
  */
 export interface XboxServiceTokenResponse {
     IssueInstant: string
@@ -65,11 +65,11 @@ export interface DisplayClaim {
 }
 
 /* ***********************************/
-/*       Minecraft Auth Models       */
+/*       Minecraft 認証モデル        */
 /* ***********************************/
 
 /**
- * Minecraft Authorization Response.
+ * Minecraft 認証レスポンス
  */
 export interface MCTokenResponse {
     username: string
@@ -80,11 +80,11 @@ export interface MCTokenResponse {
 }
 
 /* ***********************************/
-/*       Minecraft Data Models       */
+/*       Minecraft データモデル      */
 /* ***********************************/
 
 /**
- * Minecraft Profile Response.
+ * Minecraft プロファイルレスポンス
  */
 export interface MCUserInfo {
     id: string

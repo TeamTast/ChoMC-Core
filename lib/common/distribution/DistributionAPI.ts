@@ -1,13 +1,13 @@
 import { resolve } from 'path'
-import { Distribution } from 'helios-distribution-types'
+import { Distribution } from 'Cho-distribution-types'
 import got, { RequestError } from 'got'
 import { LoggerUtil } from '../../util/LoggerUtil'
 import { RestResponse, handleGotError, RestResponseStatus } from '../rest/RestResponse'
 import { pathExists, readFile, writeJson } from 'fs-extra'
-import { HeliosDistribution } from './DistributionFactory'
+import { ChoDistribution } from './DistributionFactory'
 
-// TODO Option to check endpoint for hash of distro for local compare
-// Useful if distro is large (MBs)
+// TODO ローカル比較のためにディストリビューションのハッシュのエンドポイントを確認するオプション
+// ディストリビューションが大きい（MB単位）場合に便利
 
 export class DistributionAPI {
 
@@ -19,7 +19,7 @@ export class DistributionAPI {
     private distroPath: string
     private distroDevPath: string
 
-    private distribution!: HeliosDistribution
+    private distribution!: ChoDistribution
     private rawDistribution!: Distribution
 
     constructor(
@@ -29,46 +29,50 @@ export class DistributionAPI {
         private remoteUrl: string,
         private devMode: boolean
     ) {
+        // 本番/開発の両ディストロファイルパスを保持して後続で使う。
         this.distroPath = resolve(launcherDirectory, this.DISTRO_FILE)
         this.distroDevPath = resolve(launcherDirectory, this.DISTRO_FILE_DEV)
     }
 
-    public async getDistribution(): Promise<HeliosDistribution> {
-        if(this.rawDistribution == null) {
+    public async getDistribution(): Promise<ChoDistribution> {
+        // リモート/ローカルから遅延ロードし、Cho ラッパーをキャッシュする。
+        if (this.rawDistribution == null) {
             this.rawDistribution = await this.loadDistribution()
-            this.distribution = new HeliosDistribution(this.rawDistribution, this.commonDir, this.instanceDir)
+            this.distribution = new ChoDistribution(this.rawDistribution, this.commonDir, this.instanceDir)
         }
         return this.distribution
     }
 
-    public async getDistributionLocalLoadOnly(): Promise<HeliosDistribution> {
-        if(this.rawDistribution == null) {
+    public async getDistributionLocalLoadOnly(): Promise<ChoDistribution> {
+        // ディスクのみから読み込む（開発モード向け）。無ければ例外。
+        if (this.rawDistribution == null) {
             const x = await this.pullLocal()
-            if(x == null) {
+            if (x == null) {
                 throw new Error('FATAL: Unable to load distribution from local disk.')
             }
             this.rawDistribution = x
-            this.distribution = new HeliosDistribution(this.rawDistribution, this.commonDir, this.instanceDir)
+            this.distribution = new ChoDistribution(this.rawDistribution, this.commonDir, this.instanceDir)
         }
         return this.distribution
     }
 
-    public async refreshDistributionOrFallback(): Promise<HeliosDistribution> {
-
+    public async refreshDistributionOrFallback(): Promise<ChoDistribution> {
+        // リフレッシュを試み、リモート・ローカル共に失敗したら現在のメモリ上のものを維持。
         const distro = await this._loadDistributionNullable()
 
-        if(distro == null) {
+        if (distro == null) {
             DistributionAPI.log.warn('Failed to refresh distribution, falling back to current load (if exists).')
             return this.distribution
         } else {
             this.rawDistribution = distro
-            this.distribution = new HeliosDistribution(distro, this.commonDir, this.instanceDir)
+            this.distribution = new ChoDistribution(distro, this.commonDir, this.instanceDir)
 
             return this.distribution
         }
     }
 
     public toggleDevMode(dev: boolean): void {
+        // 開発/本番の読み込み先を切り替えるだけ（自動再読込はしない）。
         this.devMode = dev
     }
 
@@ -80,8 +84,8 @@ export class DistributionAPI {
 
         const distro = await this._loadDistributionNullable()
 
-        if(distro == null) {
-            // TODO Bubble this up nicer
+        if (distro == null) {
+            // TODO これをより適切に上位に伝播させる
             throw new Error('FATAL: Unable to load distribution from remote server or local disk.')
         }
 
@@ -92,16 +96,18 @@ export class DistributionAPI {
 
         let distro
 
-        if(!this.devMode) {
+        if (!this.devMode) {
 
+            // リモートを優先。成功時はオフライン用にディスクへ書き出す。
             distro = (await this.pullRemote()).data
-            if(distro == null) {
+            if (distro == null) {
                 distro = await this.pullLocal()
             } else {
                 await this.writeDistributionToDisk(distro)
             }
 
         } else {
+            // 開発モードはローカル（dev）コピーのみ参照。
             distro = await this.pullLocal()
         }
 
@@ -119,15 +125,16 @@ export class DistributionAPI {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(error) {
+        } catch (error) {
 
             return handleGotError('Pull Remote', error as RequestError, DistributionAPI.log, () => null)
 
         }
-        
+
     }
 
     protected async writeDistributionToDisk(distribution: Distribution): Promise<void> {
+        // 取得した最新ディストロをキャッシュし、オフラインでも使えるようにする。
         await writeJson(this.distroPath, distribution)
     }
 
@@ -137,11 +144,11 @@ export class DistributionAPI {
 
     protected async readDistributionFromFile(path: string): Promise<Distribution | null> {
 
-        if(await pathExists(path)) {
+        if (await pathExists(path)) {
             const raw = await readFile(path, 'utf-8')
             try {
                 return JSON.parse(raw) as Distribution
-            } catch(error) {
+            } catch (error) {
                 DistributionAPI.log.error(`Malformed distribution file at ${path}`)
                 return null
             }

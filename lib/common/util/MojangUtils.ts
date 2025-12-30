@@ -41,11 +41,10 @@ export function isLibraryCompatible(rules?: Rule[], natives?: Natives): boolean 
 }
 
 /**
- * Returns true if the actual version is greater than
- * or equal to the desired version.
- * 
- * @param {string} desired The desired version.
- * @param {string} actual The actual version.
+ * 実際のバージョンが希望するバージョン以上である場合にtrueを返す
+ *
+ * @param {string} desired 希望するバージョン
+ * @param {string} actual 実際のバージョン
  */
 export function mcVersionAtLeast(desired: string, actual: string): boolean {
     const des = desired.split('.')

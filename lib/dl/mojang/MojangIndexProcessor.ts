@@ -96,7 +96,7 @@ export class MojangIndexProcessor extends IndexProcessor {
             return versionJson
             
         } else {
-            // Attempt to find local index.
+            // ローカルインデックスの検索を試みる
             if(await pathExists(versionJsonPath)) {
                 return await readJson(versionJsonPath) as VersionJsonBase
             } else {
@@ -175,7 +175,7 @@ export class MojangIndexProcessor extends IndexProcessor {
     }
 
     public async postDownload(): Promise<void> {
-        // no-op
+        // 何もしない
     }
 
     private async validateAssets(assetIndex: AssetIndex): Promise<Asset[]> {

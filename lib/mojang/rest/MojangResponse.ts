@@ -4,19 +4,19 @@ import { RestResponse } from '../../common/rest/RestResponse'
  * @see https://wiki.vg/Authentication#Errors
  */
 export enum MojangErrorCode {
-    ERROR_METHOD_NOT_ALLOWED,       // INTERNAL
-    ERROR_NOT_FOUND,                // INTERNAL
+    ERROR_METHOD_NOT_ALLOWED,       // 内部
+    ERROR_NOT_FOUND,                // 内部
     ERROR_USER_MIGRATED,
     ERROR_INVALID_CREDENTIALS,
     ERROR_RATELIMIT,
     ERROR_INVALID_TOKEN,
     ERROR_ACCESS_TOKEN_HAS_PROFILE, // ??
-    ERROR_CREDENTIALS_MISSING,      // INTERNAL
+    ERROR_CREDENTIALS_MISSING,      // 内部
     ERROR_INVALID_SALT_VERSION,     // ??
-    ERROR_UNSUPPORTED_MEDIA_TYPE,   // INTERNAL
+    ERROR_UNSUPPORTED_MEDIA_TYPE,   // 内部
     ERROR_GONE,
     ERROR_UNREACHABLE,
-    ERROR_NOT_PAID,                 // Not automatically detected, response is 200 with a certain body.
+    ERROR_NOT_PAID,                 // 自動的に検出されない、レスポンスは特定のボディを持つ200である
     UNKNOWN
 }
 
@@ -32,9 +32,9 @@ export interface MojangErrorBody {
 }
 
 /**
- * Resolve the error response code from the response body.
- * 
- * @param body The mojang error body response.
+ * レスポンスボディからエラーレスポンスコードを解決する
+ *
+ * @param body Mojangエラーボディレスポンス
  */
 export function decipherErrorCode(body: MojangErrorBody): MojangErrorCode {
 
@@ -76,15 +76,15 @@ export function decipherErrorCode(body: MojangErrorBody): MojangErrorCode {
 
 }
 
-// These indicate problems with the code and not the data.
+// これらはデータではなくコードの問題を示す
 export function isInternalError(errorCode: MojangErrorCode): boolean {
     switch(errorCode) {
-        case MojangErrorCode.ERROR_METHOD_NOT_ALLOWED:       // We've sent the wrong method to an endpoint. (ex. GET to POST)
-        case MojangErrorCode.ERROR_NOT_FOUND:                // Indicates endpoint has changed. (404)
-        case MojangErrorCode.ERROR_ACCESS_TOKEN_HAS_PROFILE: // Selecting profiles isn't implemented yet. (Shouldnt happen)
-        case MojangErrorCode.ERROR_CREDENTIALS_MISSING:      // Username/password was not submitted. (UI should forbid this)
-        case MojangErrorCode.ERROR_INVALID_SALT_VERSION:     // ??? (Shouldnt happen)
-        case MojangErrorCode.ERROR_UNSUPPORTED_MEDIA_TYPE:   // Data was not submitted as application/json
+        case MojangErrorCode.ERROR_METHOD_NOT_ALLOWED:       // エンドポイントに間違ったメソッドを送信した（例：POSTへのGET）
+        case MojangErrorCode.ERROR_NOT_FOUND:                // エンドポイントが変更されたことを示す（404）
+        case MojangErrorCode.ERROR_ACCESS_TOKEN_HAS_PROFILE: // プロファイルの選択はまだ実装されていない（発生しないはず）
+        case MojangErrorCode.ERROR_CREDENTIALS_MISSING:      // ユーザー名/パスワードが送信されなかった（UIで禁止すべき）
+        case MojangErrorCode.ERROR_INVALID_SALT_VERSION:     // ???（発生しないはず）
+        case MojangErrorCode.ERROR_UNSUPPORTED_MEDIA_TYPE:   // データがapplication/jsonとして送信されなかった
             return true
         default:
             return false

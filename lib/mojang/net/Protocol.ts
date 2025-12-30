@@ -1,7 +1,7 @@
 /**
- * Utility Class to construct a packet conforming to Minecraft's
- * protocol. All data types are BE except VarInt and VarLong.
- * 
+ * Minecraftのプロトコルに準拠したパケットを構築するためのユーティリティクラス
+ * VarIntとVarLongを除くすべてのデータ型はBE（ビッグエンディアン）である
+ *
  * @see https://wiki.vg/Protocol
  */
 export class ServerBoundPacket {
@@ -17,8 +17,8 @@ export class ServerBoundPacket {
     }
 
     /**
-     * Packet is prefixed with its data length as a VarInt.
-     * 
+     * パケットには、VarIntとしてデータ長がプレフィックスとして付加される
+     *
      * @see https://wiki.vg/Protocol#Packet_format
      */
     public toBuffer(): Buffer {
@@ -54,8 +54,8 @@ export class ServerBoundPacket {
     }
 
     /**
-     * Strings are prefixed with their length as a VarInt.
-     * 
+     * 文字列には、VarIntとして長さがプレフィックスとして付加される
+     *
      * @see https://wiki.vg/Protocol#Data_types
      */
     public writeString(string: string): ServerBoundPacket {
@@ -78,10 +78,9 @@ export class ServerBoundPacket {
 }
 
 /**
- * Utility Class to read a client-bound packet conforming to
- * Minecraft's protocol. All data types are BE except VarInt
- * and VarLong.
- * 
+ * Minecraftのプロトコルに準拠したクライアントバウンドパケットを読み取るための
+ * ユーティリティクラス。VarIntとVarLongを除くすべてのデータ型はBE（ビッグエンディアン）である
+ *
  * @see https://wiki.vg/Protocol
  */
 export class ClientBoundPacket {

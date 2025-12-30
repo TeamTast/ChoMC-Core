@@ -2,50 +2,50 @@ import { RequestError, HTTPError, TimeoutError, ParseError } from 'got'
 import { Logger } from 'winston'
 
 /**
- * Rest Response status.
+ * Restレスポンスステータス
  */
 export enum RestResponseStatus {
     /**
-     * Status indicating the request was successful.
+     * リクエストが成功したことを示すステータス
      */
     SUCCESS,
     /**
-     * Status indicating there was a problem with the response.
-     * All status codes outside the 200 range will have an error status.
+     * レスポンスに問題があったことを示すステータス
+     * 200番台以外のすべてのステータスコードはエラーステータスとなる
      */
     ERROR
 }
 
 /**
- * Base RestResponse for generic REST calls.
+ * 一般的なREST呼び出しのための基本RestResponse
  */
 export interface RestResponse<T> {
 
     /**
-     * The response body.
+     * レスポンスボディ
      */
     data: T
     /**
-     * The response status.
+     * レスポンスステータス
      */
     responseStatus: RestResponseStatus
     /**
-     * If responseStatus is ERROR, the error body.
+     * responseStatusがERRORの場合のエラーボディ
      */
     error?: RequestError
 
 }
 
 /**
- * An object to translate an error code to a displayable message.
+ * エラーコードを表示可能なメッセージに変換するためのオブジェクト
  */
 export interface DisplayableError {
     /**
-     * Error title.
+     * エラータイトル
      */
     title: string
     /**
-     * Error description.
+     * エラー説明
      */
     desc: string
 }
@@ -58,13 +58,13 @@ export function isDisplayableError(it: unknown): boolean {
 }
 
 /**
- * Handle a got error for a generic RestResponse.
- * 
- * @param operation The operation name, for logging purposes.
- * @param error The error that occurred.
- * @param logger A logger instance.
- * @param dataProvider A function to provide a response body.
- * @returns A RestResponse configured with error information.
+ * 一般的なRestResponseのgotエラーを処理する
+ *
+ * @param operation ログ出力用の操作名
+ * @param error 発生したエラー
+ * @param logger ロガーインスタンス
+ * @param dataProvider レスポンスボディを提供する関数
+ * @returns エラー情報で構成されたRestResponse
  */
 export function handleGotError<T>(operation: string, error: RequestError, logger: Logger, dataProvider: () => T): RestResponse<T> {
     const response: RestResponse<T> = {
@@ -74,20 +74,20 @@ export function handleGotError<T>(operation: string, error: RequestError, logger
     }
     
     if(error instanceof HTTPError) {
-        logger.error(`Error during ${operation} request (HTTP Response ${error.response.statusCode})`, error)
-        logger.debug('Response Details:')
+        logger.error(`${operation} リクエスト中にエラーが発生しました (HTTPレスポンス ${error.response.statusCode})`, error)
+        logger.debug('レスポンス詳細:')
         logger.debug(`URL: ${error.request.requestUrl}`)
-        logger.debug('Body:', error.response.body)
-        logger.debug('Headers:', error.response.headers)
+        logger.debug('ボディ:', error.response.body)
+        logger.debug('ヘッダー:', error.response.headers)
     } else if(error.name === 'RequestError') {
-        logger.error(`${operation} request received no response (${error.code}).`, error)
+        logger.error(`${operation} リクエストは応答を受信しませんでした (${error.code})。`, error)
     } else if(error instanceof TimeoutError) {
-        logger.error(`${operation} request timed out (${error.timings.phases.total}ms).`)
+        logger.error(`${operation} リクエストがタイムアウトしました (${error.timings.phases.total}ms)。`)
     } else if(error instanceof ParseError) {
-        logger.error(`${operation} request received unexepected body (Parse Error).`)
+        logger.error(`${operation} リクエストが予期しないボディを受信しました (解析エラー)。`)
     } else {
         // CacheError, ReadError, MaxRedirectsError, UnsupportedProtocolError, CancelError
-        logger.error(`Error during ${operation} request.`, error)
+        logger.error(`${operation} リクエスト中にエラーが発生しました。`, error)
     }
 
     return response

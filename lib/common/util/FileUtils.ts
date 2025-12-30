@@ -1,7 +1,7 @@
 import { createHash } from 'crypto'
 import { dirname, join } from 'path'
 import { pathExists, createReadStream, remove, unlink } from 'fs-extra'
-import { LoggerUtil } from '../..//util/LoggerUtil'
+import { LoggerUtil } from '../../util/LoggerUtil'
 import { StreamZipAsync } from 'node-stream-zip'
 import StreamZip from 'node-stream-zip'
 import { createGunzip } from 'zlib'
@@ -66,14 +66,14 @@ export async function extractZip(zipPath: string, peek?: (zip: StreamZipAsync) =
     }
 
     try {
-        log.info(`Extracting ${zipPath}`)
+        log.info(`${zipPath} を展開中`)
         await zip.extract(null, dirname(zipPath))
-        log.info(`Removing ${zipPath}`)
+        log.info(`${zipPath} を削除中`)
         await remove(zipPath)
-        log.info('Zip extraction complete.')
+        log.info('Zipの展開が完了しました。')
 
     } catch(err) {
-        log.error('Zip extraction failed', err)
+        log.error('Zipの展開に失敗しました', err)
     } finally {
         await zip.close()
     }

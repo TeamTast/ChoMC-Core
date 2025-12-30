@@ -66,7 +66,7 @@ export class FullRepairReceiver implements Receiver {
 
     }
 
-    // Construct friendly error messages
+    // 親切なエラーメッセージを作成する
     public async parseError(error: unknown): Promise<string | undefined> {
         if(error instanceof RequestError) {
             if(error?.request?.requestUrl) {
@@ -152,7 +152,7 @@ export class FullRepairReceiver implements Receiver {
         log.debug('Expected download size ' + expectedTotalSize)
         this.assets.forEach(({ id }) => log.debug(`Asset Requires Download: ${id}`))
 
-        // Reduce load on IPC channel by sending only whole numbers.
+        // 整数のみを送信することでIPCチャネルの負荷を軽減する
         let currentPercent = 0
         const receivedEach = await downloadQueue(this.assets, received => {
             const nextPercent = Math.trunc((received/expectedTotalSize)*100)

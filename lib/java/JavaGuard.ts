@@ -1,7 +1,7 @@
 import { exec } from 'child_process'
 import { pathExists, readdir } from 'fs-extra'
 import got from 'got'
-import { Architecture, JdkDistribution, Platform } from 'helios-distribution-types'
+import { Architecture, JdkDistribution, Platform } from 'Helios-distribution-types'
 import { dirname, join } from 'path'
 import { promisify } from 'util'
 import { LauncherJson } from '../model/mojang/LauncherJson'
@@ -65,198 +65,198 @@ export interface AdoptiumJdk {
 
 /**
  * HotSpot Properties
- * 
+ *
  * Obtained via java -XshowSettings:properties -version
- * 
+ *
  * https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/System.html#getProperties()
  * https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
  * https://docs.oracle.com/javame/config/cdc/cdc-opt-impl/ojmeec/1.1/architecture/html/properties.htm
  */
 export interface HotSpotSettings {
     /**
-     * Character encoding for the default locale.
+     * デフォルトロケールの文字エンコーディング
      */
     'file.encoding': string
     /**
-     * Character that separates components of a file path. This is "/" on UNIX and "\" on Windows.
+     * ファイルパスのコンポーネントを区切る文字。UNIXでは "/"、Windowsでは "\"
      */
     'file.separator': string
     /**
-     * Path used to find directories and JAR archives containing class files. Elements of the class path are separated by a platform-specific character specified in the path.separator property.
-     * This will be blank on -XshowSettings for obvious reasons.
+     * クラスファイルを含むディレクトリやJARアーカイブを見つけるために使用されるパス。クラスパスの要素は、path.separatorプロパティで指定されたプラットフォーム固有の文字で区切られる
+     * 明らかな理由により、-XshowSettingsでは空になる
      */
     'java.class.path': string
     /**
-     * Java class format version number.
-     * Read as string, actually a number.
+     * Javaクラスフォーマットのバージョン番号
+     * 文字列として読み取られるが、実際には数値
      */
     'java.class.version': string
     /**
-     * Java installation directory (in 8, the path to the bundled JRE if using the JDK).
+     * Javaインストールディレクトリ（8では、JDKを使用している場合、バンドルされたJREへのパス）
      */
     'java.home': string
     /**
-     * Default temp file path.
+     * デフォルトの一時ファイルパス
      */
     'java.io.tmpdir': string
     /**
-     * List of paths to search when loading libraries.
+     * ライブラリをロードする際に検索するパスのリスト
      */
     'java.library.path': string[]
     /**
-     * Runtime Name *Undocumented*
+     * ランタイム名 *未文書化*
      * https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/lang/VersionProps.java.template#L105
      */
     'java.runtime.name': string
     /**
-     * Runtime Version *Undocumented*
+     * ランタイムバージョン *未文書化*
      * https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/lang/VersionProps.java.template#L104
-     * Ex. 17: 17.0.5+8; 8: 1.8.0_352-b08
+     * 例 17: 17.0.5+8; 8: 1.8.0_352-b08
      */
     'java.runtime.version': string
     /**
-     * Undefined for the initial release. Indicates the runtime implements a revised version of the specification.
+     * 初期リリースでは未定義。ランタイムが仕様の改訂版を実装していることを示す
      * https://bugs.openjdk.org/browse/JDK-8286766
      */
     'java.specification.maintenance.version'?: string
     /**
-     * Java Runtime Environment specification name.
+     * Javaランタイム環境仕様名
      */
     'java.specification.name': string
     /**
-     * Java Runtime Environment specification vendor.
+     * Javaランタイム環境仕様ベンダー
      */
     'java.specification.vendor': string
     /**
-     * Java Runtime Environment specification version, whose value is the feature element of the runtime version
-     * 
-     * Ex. 17: 17; 8: 1.8
+     * Javaランタイム環境仕様バージョン。その値はランタイムバージョンの機能要素
+     *
+     * 例 17: 17; 8: 1.8
      */
     'java.specification.version': string
     /**
-     * Java Runtime Environment vendor
+     * Javaランタイム環境ベンダー
      */
     'java.vendor': string
     /**
-     * Java vendor URL
+     * JavaベンダーURL
      */
     'java.vendor.url': string
     /**
-     * Java vendor bug report URL *Undocumented* (but standard)
+     * Javaベンダーバグ報告URL *未文書化*（ただし標準）
      */
     'java.vendor.url.bug': string
     /**
-     * Java vendor version (optional)
+     * Javaベンダーバージョン（オプション）
      * JDK 10+
      * https://openjdk.org/jeps/322
      */
     'java.vendor.version'?: string
     /**
-     * Java Runtime Environment version
-     * Ex. 17: 17.0.5; 8: 1.8.0_352
+     * Javaランタイム環境バージョン
+     * 例 17: 17.0.5; 8: 1.8.0_352
      */
     'java.version': string
     /**
-     * Java Runtime Environment version date, in ISO-8601 YYYY-MM-DD format.
+     * Javaランタイム環境バージョン日付（ISO-8601 YYYY-MM-DD形式）
      * JDK 10+
      * https://openjdk.org/jeps/322
      */
     'java.version.date'?: string
     /**
-     * Internal flag, Compressed Oop Mode the VM is running in (for JDK internal tests).
+     * 内部フラグ、VMが実行されている圧縮Oopモード（JDK内部テスト用）
      * JDK 9+
      * https://bugs.openjdk.org/browse/JDK-8064457
      */
     'java.vm.compressedOopsMode'?: string
     /**
-     * No summary information available, part of the JDK for a very long time.
+     * 概要情報は利用不可、非常に長い間JDKの一部である
      */
     'java.vm.info': string
     /**
-     * Java Virtual Machine implementation name.
+     * Java仮想マシン実装名
      */
     'java.vm.name': string
     /**
-     * 	Java Runtime Environment specification name.
+     * 	Javaランタイム環境仕様名
      */
     'java.vm.specification.name': string
     /**
-     * Java Runtime Environment specification vendor.
+     * Javaランタイム環境仕様ベンダー
      */
     'java.vm.specification.vendor': string
     /**
-     * Java Virtual Machine specification version, whose value is the feature element of the runtime version.
-     * 
-     * Ex. 17: 17; 8: 1.8
+     * Java仮想マシン仕様バージョン。その値はランタイムバージョンの機能要素
+     *
+     * 例 17: 17; 8: 1.8
      */
     'java.vm.specification.version': string
     /**
-     * Java Virtual Machine implementation vendor.
+     * Java仮想マシン実装ベンダー
      */
     'java.vm.vendor': string
     /**
-     * Java Virtual Machine implementation version.
-     * Ex. 17: 17.0.5+8; 8: 25.352-b08
+     * Java仮想マシン実装バージョン
+     * 例 17: 17.0.5+8; 8: 25.352-b08
      */
     'java.vm.version': string
     /**
-     * Probably an internal flag, don't use. On 17, not 8.
+     * おそらく内部フラグ、使用しないでください。17にはありますが、8にはありません。
      */
     'jdk.debug'?: string
     /**
-     * Line separator ("\n" on UNIX, "\r \n" on Windows)
+     * 行区切り文字（UNIXでは "\n"、Windowsでは "\r \n"）
      */
     'line.separator': string
     /**
-     * Character encoding name derived from the host environment and/or the user's settings. Setting this system property has no effect.
+     * ホスト環境および/またはユーザー設定から派生した文字エンコーディング名。このシステムプロパティを設定しても効果はありません。
      * https://openjdk.org/jeps/400
      * JDK 17+
      */
     'native.encoding'?: string
     /**
-     * Operating system architecture.
+     * オペレーティングシステムアーキテクチャ。
      */
     'os.arch': string
     /**
-     * Operating system name.
+     * オペレーティングシステム名。
      */
     'os.name': string
     /**
-     * Operating system version.
-     * Looks like this can be parsed as a number.
+     * オペレーティングシステムバージョン。
+     * 数値として解析できるように見えます。
      */
     'os.version': string
     /**
-     * 	Path separator (":" on UNIX, ";" on Windows)
+     * パス区切り文字（UNIXでは ":"、Windowsでは ";"）
      */
     'path.separator': string
     /**
-     * Platform word size. Examples: "32", "64", "unknown"
+     * プラットフォームのワードサイズ。例: "32", "64", "unknown"
      */
     'sun.arch.data.model': string
     /**
-     * From here, the VM loads VM libraries (like those related to JVMTI) and any libraries needed for classes on the bootclasspath. Read-only property.
+     * ここから、VMはVMライブラリ（JVMTIに関連するものなど）およびブートクラスパス上のクラスに必要なライブラリをロードします。読み取り専用プロパティ。
      */
     'sun.boot.library.path': string
     /**
-     * Endianess of CPU, "little" or "big".
+     * CPUのエンディアン、"little" または "big"。
      */
     'sun.cpu.endian': string
     /**
-     * The names of the native instruction sets executable on this platform.
+     * このプラットフォームで実行可能なネイティブ命令セットの名前。
      */
     'sun.cpu.isalist': string
     /**
-     * Platform-specific, follows sun.cpu.endian, for example "UnicodeLittle".
+     * プラットフォーム固有、sun.cpu.endianに従います。例: "UnicodeLittle"。
      */
     'sun.io.unicode.encoding': string
     /**
-     * Internal, used to determine if java process came from a known launcher.
-     * Ex. https://github.com/openjdk/jdk/blob/master/src/java.desktop/windows/classes/sun/java2d/windows/WindowsFlags.java#L86
+     * 内部、javaプロセスが既知のランチャーから来たかどうかを判断するために使用されます。
+     * 例: https://github.com/openjdk/jdk/blob/master/src/java.desktop/windows/classes/sun/java2d/windows/WindowsFlags.java#L86
      */
     'sun.java.launcher': string
     /**
-     * Encoding used to interpret platform strings.
+     * プラットフォーム文字列を解釈するために使用されるエンコーディング。
      * https://happygiraffe.net/2009/09/24/java-platform-encoding/
      */
     'sun.jnu.encoding': string
@@ -266,39 +266,39 @@ export interface HotSpotSettings {
      */
     'sun.management.compiler': string
     /**
-     * Internal
+     * 内部
      */
     'sun.os.patch.level': string
     /**
-     * Internal
+     * 内部
      */
     'sun.stderr.encoding': string
     /**
-     * Internal
+     * 内部
      */
     'sun.stdout.encoding': string
     /**
-     * Country (system dependent).
+     * 国（システム依存）。
      */
     'user.country': string
     /**
-     * User's current working directory.
+     * ユーザーの現在の作業ディレクトリ。
      */
     'user.dir': string
     /**
-     * 	User's home directory.
+     * ユーザーのホームディレクトリ。
      */
     'user.home': string
     /**
-     * Two-letter language code of the default locale (system dependent).
+     * デフォルトロケールの2文字の言語コード（システム依存）。
      */
     'user.language': string
     /**
-     * User's account name.
+     * ユーザーのアカウント名。
      */
     'user.name': string
     /**
-     * User specified script.
+     * ユーザー指定のスクリプト。
      * https://bugs.openjdk.org/browse/JDK-6990452
      */
     'user.script': string
@@ -320,7 +320,7 @@ export async function getHotSpotSettings(execPath: string): Promise<HotSpotSetti
 
     const javaExecutable = execPath.includes('javaw.exe') ? execPath.replace('javaw.exe', 'java.exe') : execPath
 
-    if(!await pathExists(execPath)) {
+    if (!await pathExists(execPath)) {
         log.warn(`Candidate JVM path does not exist, skipping. ${execPath}`)
         return null
     }
@@ -330,12 +330,12 @@ export async function getHotSpotSettings(execPath: string): Promise<HotSpotSetti
     let stderr
     try {
         stderr = (await execAsync(`"${javaExecutable}" -XshowSettings:properties -version`)).stderr
-    } catch(error) {
+    } catch (error) {
         log.error(`Failed to resolve JVM settings for '${execPath}'`)
         log.error(error)
         return null
     }
-    
+
 
     const listProps = [
         'java.library.path'
@@ -345,15 +345,15 @@ export async function getHotSpotSettings(execPath: string): Promise<HotSpotSetti
 
     const split = stderr.split('\n')
     let lastProp: string = null!
-    for(const prop of split) {
-        if(prop.startsWith('        ')) {
-            // Add to previous prop.
-            if(!Array.isArray(ret[lastProp])) {
+    for (const prop of split) {
+        if (prop.startsWith('        ')) {
+            // 前のプロパティに追加
+            if (!Array.isArray(ret[lastProp])) {
                 ret[lastProp] = [ret[lastProp]]
             }
             (ret[lastProp] as unknown[]).push(prop.trim())
         }
-        else if(prop.startsWith('    ')) {
+        else if (prop.startsWith('    ')) {
             const tmp = prop.split('=')
             const key = tmp[0].trim()
             const val = tmp[1].trim()
@@ -363,8 +363,8 @@ export async function getHotSpotSettings(execPath: string): Promise<HotSpotSetti
         }
     }
 
-    for(const key of listProps) {
-        if(ret[key] != null && !Array.isArray(ret[key])) {
+    for (const key of listProps) {
+        if (ret[key] != null && !Array.isArray(ret[key])) {
             ret[key] = [ret[key]]
         }
     }
@@ -376,9 +376,9 @@ export async function resolveJvmSettings(paths: string[]): Promise<{ [path: stri
 
     const ret: { [path: string]: HotSpotSettings } = {}
 
-    for(const path of paths) {
+    for (const path of paths) {
         const settings = await getHotSpotSettings(javaExecFromRoot(path))
-        if(settings != null) {
+        if (settings != null) {
             ret[path] = settings
         } else {
             log.warn(`Skipping invalid JVM candidate: ${path}`)
@@ -400,11 +400,11 @@ export function filterApplicableJavaPaths(resolvedSettings: { [path: string]: Ho
     const arm = process.arch === Architecture.ARM64
 
     const jvmDetailsUnfiltered = Object.entries(resolvedSettings)
-        .filter(([, settings ]) => parseInt(settings['sun.arch.data.model']) === 64) // Only allow 64-bit.
-        .filter(([, settings ]) => arm ? settings['os.arch'] === 'aarch64' : true) // Only allow arm on arm architecture (disallow rosetta on m2 mac)
-        .map(([ path, settings ]) => {
+        .filter(([, settings]) => parseInt(settings['sun.arch.data.model']) === 64) // 64ビットのみ許可。
+        .filter(([, settings]) => arm ? settings['os.arch'] === 'aarch64' : true) // armアーキテクチャではarmのみ許可（m2 macでのrosettaを禁止）
+        .map(([path, settings]) => {
             const parsedVersion = parseJavaRuntimeVersion(settings['java.version'])
-            if(parsedVersion == null) {
+            if (parsedVersion == null) {
                 log.error(`Failed to parse JDK version at location '${path}' (Vendor: ${settings['java.vendor']})`)
                 return null!
             }
@@ -417,7 +417,7 @@ export function filterApplicableJavaPaths(resolvedSettings: { [path: string]: Ho
         })
         .filter(x => x != null)
 
-    // Now filter by options.
+    // オプションでフィルタリング。
     const jvmDetails = jvmDetailsUnfiltered
         .filter(details => semver.satisfies(details.semverStr, semverRange))
 
@@ -427,89 +427,89 @@ export function filterApplicableJavaPaths(resolvedSettings: { [path: string]: Ho
 export function rankApplicableJvms(details: JvmDetails[]): void {
     details.sort((a, b) => {
 
-        if(a.semver.major === b.semver.major){
-            if(a.semver.minor === b.semver.minor){
-                if(a.semver.patch === b.semver.patch){
+        if (a.semver.major === b.semver.major) {
+            if (a.semver.minor === b.semver.minor) {
+                if (a.semver.patch === b.semver.patch) {
 
-                    // Same version, give priority to JRE.
-                    if(a.path.toLowerCase().includes('jdk')){
+                    // 同じバージョン、JREを優先。
+                    if (a.path.toLowerCase().includes('jdk')) {
                         return b.path.toLowerCase().includes('jdk') ? 0 : 1
                     } else {
                         return -1
                     }
 
                 } else {
-                    return (a.semver.patch - b.semver.patch)*-1
+                    return (a.semver.patch - b.semver.patch) * -1
                 }
             } else {
-                return (a.semver.minor - b.semver.minor)*-1
+                return (a.semver.minor - b.semver.minor) * -1
             }
         } else {
-            return (a.semver.major - b.semver.major)*-1
+            return (a.semver.major - b.semver.major) * -1
         }
     })
 }
 
-// Used to discover the best installation.
+// 最適なインストールを検出するために使用されます。
 export async function discoverBestJvmInstallation(dataDir: string, semverRange: string): Promise<JvmDetails | null> {
 
-    // Get candidates, filter duplicates out.
+    // 候補を取得し、重複を除外します。
     const paths = [...new Set<string>(await getValidatableJavaPaths(dataDir))]
 
-    // Get VM settings.
+    // VM設定を取得します。
     const resolvedSettings = await resolveJvmSettings(paths)
 
-    // Filter
+    // フィルタリング
     const jvmDetails = filterApplicableJavaPaths(resolvedSettings, semverRange)
 
-    // Rank
+    // ランク付け
     rankApplicableJvms(jvmDetails)
 
     return jvmDetails.length > 0 ? jvmDetails[0] : null
 }
 
-// Used to validate the selected jvm.
+// 選択されたjvmを検証するために使用されます。
 export async function validateSelectedJvm(path: string, semverRange: string): Promise<JvmDetails | null> {
 
-    if(!await pathExists(path)) {
+    if (!await pathExists(path)) {
         return null
     }
 
-    // Get VM settings.
+    // VM設定を取得します。
     const resolvedSettings = await resolveJvmSettings([path])
 
-    // Filter
+    // フィルタリング
     const jvmDetails = filterApplicableJavaPaths(resolvedSettings, semverRange)
 
-    // Rank
+    // ランク付け
     rankApplicableJvms(jvmDetails)
 
     return jvmDetails.length > 0 ? jvmDetails[0] : null
 }
 
 /**
- * Fetch the last open JDK binary.
- * 
- * HOTFIX: Uses Corretto 8 for macOS.
- * See: https://github.com/dscalzi/HeliosLauncher/issues/70
- * See: https://github.com/AdoptOpenJDK/openjdk-support/issues/101
- * 
- * @param {number} major The major version of Java to fetch.
- * 
- * @returns {Promise.<RemoteJdkDistribution | null>} Promise which resolved to an object containing the JDK download data.
+ * 最後のOpenJDKバイナリを取得します。
+ *
+ * HOTFIX: macOSにはCorretto 8を使用します。
+ * 参照: https://github.com/dscalzi/ChoLauncher/issues/70
+ * 参照: https://github.com/AdoptOpenJDK/openjdk-support/issues/101
+ *
+ * @param {number} major 取得するJavaのメジャーバージョン。
+ *
+ * @returns {Promise.<RemoteJdkDistribution | null>} JDKダウンロードデータを含むオブジェクトに解決されるPromise。
  */
 export async function latestOpenJDK(major: number, dataDir: string, distribution?: JdkDistribution): Promise<Asset | null> {
 
-    if(distribution == null) {
-        // If no distribution is specified, use Corretto on macOS and Temurin for all else.
-        if(process.platform === Platform.DARWIN) {
+    if (distribution == null) {
+        // ディストリビューションが指定されていない場合、macOSではCorretto、それ以外ではTemurinを使用する
+        if (process.platform === Platform.DARWIN) {
             return latestCorretto(major, dataDir)
         } else {
             return latestAdoptium(major, dataDir)
         }
     } else {
-        // Respect the preferred distribution.
-        switch(distribution) {
+        // 優先されるディストリビューションを尊重する
+        switch (distribution) {
             case JdkDistribution.TEMURIN:
                 return latestAdoptium(major, dataDir)
             case JdkDistribution.CORRETTO:
@@ -531,7 +531,7 @@ export async function latestAdoptium(major: number, dataDir: string): Promise<As
 
     try {
         const res = await got.get<AdoptiumJdk[]>(url, { responseType: 'json' })
-        if(res.body.length > 0) {
+        if (res.body.length > 0) {
             const targetBinary = res.body.find(entry => {
                 return entry.version.major === major
                     && entry.binary.os === sanitizedOS
@@ -539,7 +539,7 @@ export async function latestAdoptium(major: number, dataDir: string): Promise<As
                     && entry.binary.architecture === arch
             })
 
-            if(targetBinary != null) {
+            if (targetBinary != null) {
                 return {
                     url: targetBinary.binary.package.link,
                     size: targetBinary.binary.package.size,
@@ -557,7 +557,7 @@ export async function latestAdoptium(major: number, dataDir: string): Promise<As
             return null
         }
 
-    } catch(err) {
+    } catch (err) {
         log.error(`Error while retrieving latest Adoptium JDK ${major} binaries.`, err)
         return null
     }
@@ -568,7 +568,7 @@ export async function latestCorretto(major: number, dataDir: string): Promise<As
     let sanitizedOS: string, ext: string
     const arch = process.arch === Architecture.ARM64 ? 'aarch64' : Architecture.X64
 
-    switch(process.platform) {
+    switch (process.platform) {
         case Platform.WIN32:
             sanitizedOS = 'windows'
             ext = 'zip'
@@ -592,8 +592,8 @@ export async function latestCorretto(major: number, dataDir: string): Promise<As
     try {
         const res = await got.head(url)
         const checksum = await got.get(md5url)
-        if(res.statusCode === 200) {
-            const name = url.substring(url.lastIndexOf('/')+1)
+        if (res.statusCode === 200) {
+            const name = url.substring(url.lastIndexOf('/') + 1)
             return {
                 url: url,
                 size: parseInt(res.headers['content-length']!),
@@ -606,7 +606,7 @@ export async function latestCorretto(major: number, dataDir: string): Promise<As
             log.error(`Error while retrieving latest Corretto JDK ${major} (${sanitizedOS} ${arch}): ${res.statusCode} ${res.statusMessage ?? ''}`)
             return null
         }
-    } catch(err) {
+    } catch (err) {
         log.error(`Error while retrieving latest Corretto JDK ${major} (${sanitizedOS} ${arch}).`, err)
         return null
     }
@@ -614,7 +614,7 @@ export async function latestCorretto(major: number, dataDir: string): Promise<As
 
 export async function extractJdk(archivePath: string): Promise<string> {
     let javaExecPath: string = null!
-    if(archivePath.endsWith('zip')) {
+    if (archivePath.endsWith('zip')) {
         await extractZip(archivePath, async zip => {
             const entries = await zip.entries()
             javaExecPath = javaExecFromRoot(join(dirname(archivePath), Object.keys(entries)[0]))
@@ -623,9 +623,9 @@ export async function extractJdk(archivePath: string): Promise<string> {
     else {
         await extractTarGz(archivePath, header => {
             // Get the first
-            if(javaExecPath == null) {
+            if (javaExecPath == null) {
                 let h = header.name
-                if(h.includes('/')){
+                if (h.includes('/')) {
                     h = h.substring(0, h.indexOf('/'))
                 }
                 javaExecPath = javaExecFromRoot(join(dirname(archivePath), h))
@@ -644,7 +644,7 @@ export async function extractJdk(archivePath: string): Promise<string> {
  * @returns {string} The path to the Java executable.
  */
 export function javaExecFromRoot(rootDir: string): string {
-    switch(process.platform) {
+    switch (process.platform) {
         case Platform.WIN32:
             return join(rootDir, 'bin', 'javaw.exe')
         case Platform.DARWIN:
@@ -663,7 +663,7 @@ export function javaExecFromRoot(rootDir: string): string {
  * @returns The root java path.
  */
 export function ensureJavaDirIsRoot(dir: string): string {
-    switch(process.platform) {
+    switch (process.platform) {
         case Platform.DARWIN: {
             const index = dir.indexOf('/Contents/Home')
             return index > -1 ? dir.substring(0, index) : dir
@@ -684,7 +684,7 @@ export function ensureJavaDirIsRoot(dir: string): string {
  * @returns {boolean} True if the path points to a Java executable, otherwise false.
  */
 export function isJavaExecPath(pth: string): boolean {
-    switch(process.platform) {
+    switch (process.platform) {
         case Platform.WIN32:
             return pth.endsWith(join('bin', 'javaw.exe'))
         case Platform.DARWIN:
@@ -706,7 +706,7 @@ export async function loadMojangLauncherData(): Promise<LauncherJson | null> {
     try {
         const res = await got.get<LauncherJson>('https://launchermeta.mojang.com/mc/launcher.json', { responseType: 'json' })
         return res.body
-    } catch(err) {
+    } catch (err) {
         log.error('Failed to retrieve Mojang\'s launcher.json file.')
         return null
     }
@@ -721,7 +721,7 @@ export async function loadMojangLauncherData(): Promise<LauncherJson | null> {
  * @returns Object containing the version information.
  */
 export function parseJavaRuntimeVersion(verString: string): JavaVersion | null {
-    if(verString.startsWith('1.')){
+    if (verString.startsWith('1.')) {
         return parseJavaRuntimeVersionLegacy(verString)
     } else {
         return parseJavaRuntimeVersionSemver(verString)
@@ -735,13 +735,13 @@ export function parseJavaRuntimeVersion(verString: string): JavaVersion | null {
  * @param {string} verString Full version string to parse.
  * @returns Object containing the version information.
  */
-export function  parseJavaRuntimeVersionLegacy(verString: string): JavaVersion | null {
+export function parseJavaRuntimeVersionLegacy(verString: string): JavaVersion | null {
     // 1.{major}.0_{update}-b{build}
     // ex. 1.8.0_152-b16
     const regex = /1.(\d+).(\d+)_(\d+)(?:-b(\d+))?/
     const match = regex.exec(verString)!
 
-    if(match == null) {
+    if (match == null) {
         log.error(`Failed to parse legacy Java version: ${verString}`)
         return null
     }
@@ -754,19 +754,19 @@ export function  parseJavaRuntimeVersionLegacy(verString: string): JavaVersion |
 }
 
 /**
- * Parses a full Java Runtime version string and resolves
- * the version information. Uses Java 9+ formatting.
- * 
- * @param {string} verString Full version string to parse.
- * @returns Object containing the version information.
+ * 完全なJavaランタイムバージョン文字列を解析し、バージョン情報を解決します。
+ * Java 9以降のフォーマットを使用します。
+ *
+ * @param {string} verString 解析する完全なバージョン文字列。
+ * @returns バージョン情報を含むオブジェクト。
  */
-export function  parseJavaRuntimeVersionSemver(verString: string): JavaVersion | null {
+export function parseJavaRuntimeVersionSemver(verString: string): JavaVersion | null {
     // {major}.{minor}.{patch}+{build}
     // ex. 10.0.2+13 or 10.0.2.13
     const regex = /(\d+)\.(\d+).(\d+)(?:[+.](\d+))?/
     const match = regex.exec(verString)!
 
-    if(match == null) {
+    if (match == null) {
         log.error(`Failed to parse semver Java version: ${verString}`)
         return null
     }
@@ -792,14 +792,14 @@ export class PathBasedJavaDiscoverer implements JavaDiscoverer {
 
     constructor(
         protected paths: string[]
-    ) {}
+    ) { }
 
     public async discover(): Promise<string[]> {
 
         const res = new Set<string>()
 
-        for(const path of this.paths) {
-            if(await pathExists(javaExecFromRoot(path))) {
+        for (const path of this.paths) {
+            if (await pathExists(javaExecFromRoot(path))) {
                 res.add(path)
             }
         }
@@ -812,20 +812,20 @@ export class DirectoryBasedJavaDiscoverer implements JavaDiscoverer {
 
     constructor(
         protected directories: string[]
-    ) {}
+    ) { }
 
     public async discover(): Promise<string[]> {
 
         const res = new Set<string>()
 
-        for(const directory of this.directories) {
+        for (const directory of this.directories) {
 
-            if(await pathExists(directory)) {
+            if (await pathExists(directory)) {
                 const files = await readdir(directory)
-                for(const file of files) {
+                for (const file of files) {
                     const fullPath = join(directory, file)
-                    
-                    if(await pathExists(javaExecFromRoot(fullPath))) {
+
+                    if (await pathExists(javaExecFromRoot(fullPath))) {
                         res.add(fullPath)
                     }
                 }
@@ -840,18 +840,18 @@ export class EnvironmentBasedJavaDiscoverer implements JavaDiscoverer {
 
     constructor(
         protected keys: string[]
-    ) {}
+    ) { }
 
     public async discover(): Promise<string[]> {
 
         const res = new Set<string>()
 
-        for(const key of this.keys) {
+        for (const key of this.keys) {
 
             const value = process.env[key]
-            if(value != null) {
+            if (value != null) {
                 const asRoot = ensureJavaDirIsRoot(value)
-                if(await pathExists(asRoot)) {
+                if (await pathExists(asRoot)) {
                     res.add(asRoot)
                 }
             }
@@ -879,30 +879,30 @@ export class Win32RegistryJavaDiscoverer implements JavaDiscoverer {
             const candidates = new Set<string>()
 
             // eslint-disable-next-line @typescript-eslint/prefer-for-of
-            for(let i=0; i<regKeys.length; i++){
+            for (let i = 0; i < regKeys.length; i++) {
                 const key = new Registry({
                     hive: Registry.HKLM,
                     key: regKeys[i],
                     arch: 'x64'
                 })
                 key.keyExists((err, exists) => {
-                    if(exists) {
+                    if (exists) {
                         key.keys((err, javaVers) => {
-                            if(err){
+                            if (err) {
                                 keysDone++
                                 console.error(err)
 
                                 // REG KEY DONE
                                 // DUE TO ERROR
-                                if(keysDone === regKeys.length){
+                                if (keysDone === regKeys.length) {
                                     resolve([...candidates])
                                 }
                             } else {
-                                if(javaVers.length === 0){
+                                if (javaVers.length === 0) {
                                     // REG KEY DONE
                                     // NO SUBKEYS
                                     keysDone++
-                                    if(keysDone === regKeys.length){
+                                    if (keysDone === regKeys.length) {
                                         resolve([...candidates])
                                     }
                                 } else {
@@ -910,20 +910,20 @@ export class Win32RegistryJavaDiscoverer implements JavaDiscoverer {
                                     let numDone = 0
 
                                     // eslint-disable-next-line @typescript-eslint/prefer-for-of
-                                    for(let j=0; j<javaVers.length; j++){
+                                    for (let j = 0; j < javaVers.length; j++) {
                                         const javaVer = javaVers[j]
-                                        const vKey = javaVer.key.substring(javaVer.key.lastIndexOf('\\')+1).trim()
+                                        const vKey = javaVer.key.substring(javaVer.key.lastIndexOf('\\') + 1).trim()
 
                                         let major = -1
-                                        if(vKey.length > 0) {
+                                        if (vKey.length > 0) {
                                             // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
-                                            if(isNaN(vKey as any)) {
+                                            if (isNaN(vKey as any)) {
                                                 // Should be a semver key.
                                                 major = parseJavaRuntimeVersion(vKey)?.major ?? -1
                                             } else {
                                                 // This is an abbreviated version, ie 1.8 or 17.
                                                 const asNum = parseFloat(vKey)
-                                                if(asNum < 2) {
+                                                if (asNum < 2) {
                                                     // 1.x
                                                     major = asNum % 1 * 10
                                                 } else {
@@ -932,20 +932,20 @@ export class Win32RegistryJavaDiscoverer implements JavaDiscoverer {
                                             }
                                         }
 
-                                        if(major > -1) {
+                                        if (major > -1) {
                                             javaVer.get('JavaHome', (err, res) => {
                                                 const jHome = res.value
                                                 // Exclude 32bit.
-                                                if(!jHome.includes('(x86)')){
+                                                if (!jHome.includes('(x86)')) {
                                                     candidates.add(jHome)
                                                 }
-    
+
                                                 // SUBKEY DONE
-    
+
                                                 numDone++
-                                                if(numDone === javaVers.length){
+                                                if (numDone === javaVers.length) {
                                                     keysDone++
-                                                    if(keysDone === regKeys.length){
+                                                    if (keysDone === regKeys.length) {
                                                         resolve([...candidates])
                                                     }
                                                 }
@@ -954,11 +954,11 @@ export class Win32RegistryJavaDiscoverer implements JavaDiscoverer {
 
                                             // SUBKEY DONE
                                             // MAJOR VERSION UNPARSEABLE
-                                                
+
                                             numDone++
-                                            if(numDone === javaVers.length){
+                                            if (numDone === javaVers.length) {
                                                 keysDone++
-                                                if(keysDone === regKeys.length){
+                                                if (keysDone === regKeys.length) {
                                                     resolve([...candidates])
                                                 }
                                             }
@@ -973,7 +973,7 @@ export class Win32RegistryJavaDiscoverer implements JavaDiscoverer {
                         // DUE TO NON-EXISTANCE
 
                         keysDone++
-                        if(keysDone === regKeys.length){
+                        if (keysDone === regKeys.length) {
                             resolve([...candidates])
                         }
                     }
@@ -989,7 +989,7 @@ export class Win32RegistryJavaDiscoverer implements JavaDiscoverer {
 
 export async function getValidatableJavaPaths(dataDir: string): Promise<string[]> {
     let discoverers: JavaDiscoverer[]
-    switch(process.platform) {
+    switch (process.platform) {
         case Platform.WIN32:
             discoverers = await getWin32Discoverers(dataDir)
             break
@@ -1005,7 +1005,7 @@ export async function getValidatableJavaPaths(dataDir: string): Promise<string[]
     }
 
     let paths: string[] = []
-    for(const discover of discoverers) {
+    for (const discover of discoverers) {
         paths = [
             ...paths,
             ...await discover.discover()
@@ -1042,7 +1042,7 @@ export async function getDarwinDiscoverers(dataDir: string): Promise<JavaDiscove
         new PathBasedJavaDiscoverer([
             '/Library/Internet Plug-Ins/JavaAppletPlugin.plugin' // /Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java
         ])
-        
+
     ]
 }
 
@@ -1062,11 +1062,11 @@ export async function win32DriveMounts(): Promise<string[]> {
 
     let stdout
     try {
-        stdout = (await execAsync('gdr -psp FileSystem | select -eXp root | ConvertTo-Json', {shell: 'powershell.exe'})).stdout
-    } catch(error) {
+        stdout = (await execAsync('gdr -psp FileSystem | select -eXp root | ConvertTo-Json', { shell: 'powershell.exe' })).stdout
+    } catch (error) {
         log.error('Failed to resolve drive mounts!')
         log.error(error)
-        // Default to C:\\
+        // デフォルトは C:\\
         return ['C:\\']
     }
 
@@ -1076,8 +1076,8 @@ export async function win32DriveMounts(): Promise<string[]> {
 export async function getPathsOnAllDrivesWin32(paths: string[]): Promise<string[]> {
     const driveMounts = await win32DriveMounts()
     const res: string[] = []
-    for(const path of paths) {
-        for(const mount of driveMounts) {
+    for (const path of paths) {
+        for (const mount of driveMounts) {
             res.push(join(mount, path))
         }
     }

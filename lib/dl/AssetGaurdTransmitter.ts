@@ -20,7 +20,7 @@ abstract class BaseTransmitter {
         }
 
         if(additionalEnvVars) {
-            // Copy and enrich current env
+            // 現在の環境変数をコピーして拡張する
             const forkEnv: NodeJS.ProcessEnv = {
                 ...JSON.parse(JSON.stringify(process.env)) as NodeJS.ProcessEnv,
                 ...additionalEnvVars
@@ -31,14 +31,14 @@ abstract class BaseTransmitter {
 
         this.receiver = fork(join(__dirname, 'receivers', 'ReceiverExecutor.js'), [ this.receiverName() ], forkOptions)
 
-        // Stdout
+        // 標準出力
         this.receiver.stdio[1]!.setEncoding('utf8')
         this.receiver.stdio[1]!.on('data', (data: string) => {
             `${data}`.trim().split('\n')
                 .forEach(line => console.log(`\x1b[32m[_]\x1b[0m ${line}`))
             
         })
-        // Stderr
+        // 標準エラー出力
         this.receiver.stdio[2]!.setEncoding('utf8')
         this.receiver.stdio[2]!.on('data', (data: string) => {
             `${data}`.trim().split('\n')

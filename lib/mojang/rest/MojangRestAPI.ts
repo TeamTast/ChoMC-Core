@@ -60,7 +60,7 @@ export class MojangRestAPI {
     private static readonly TIMEOUT = 2500
 
     public static readonly AUTH_ENDPOINT = 'https://authserver.mojang.com'
-    public static readonly STATUS_ENDPOINT = 'https://raw.githubusercontent.com/AventiumSoftworks/helios-status-page/master/history/summary.json'
+    public static readonly STATUS_ENDPOINT = 'https://raw.githubusercontent.com/AventiumSoftworks/Cho-status-page/master/history/summary.json'
 
     private static authClient = got.extend({
         prefixUrl: MojangRestAPI.AUTH_ENDPOINT,
@@ -119,7 +119,7 @@ export class MojangRestAPI {
                 essential: true
             },
             {
-                service: 'xbox-live-gatekeeper', // Server used to give XTokens
+                service: 'xbox-live-gatekeeper', // XTokensを提供するために使用されるサーバー
                 status: MojangStatusColor.GREY,
                 name: 'Xbox Live Gatekeeper',
                 essential: true
@@ -145,7 +145,7 @@ export class MojangRestAPI {
      * to our project which represents an unknown status.
      */
     public static statusToHex(status: string): string {
-        switch(status.toLowerCase() as MojangStatusColor){
+        switch (status.toLowerCase() as MojangStatusColor) {
             case MojangStatusColor.GREEN:
                 return '#a5c325'
             case MojangStatusColor.YELLOW:
@@ -171,15 +171,15 @@ export class MojangRestAPI {
 
         const response: MojangResponse<T> = handleGotError(operation, error, MojangRestAPI.logger, dataProvider)
 
-        if(error instanceof HTTPError) {
+        if (error instanceof HTTPError) {
             response.mojangErrorCode = decipherErrorCode(error.response.body as MojangErrorBody)
-        } else if(error.name === 'RequestError' && error.code === 'ENOTFOUND') {
+        } else if (error.name === 'RequestError' && error.code === 'ENOTFOUND') {
             response.mojangErrorCode = MojangErrorCode.ERROR_UNREACHABLE
         } else {
             response.mojangErrorCode = MojangErrorCode.UNKNOWN
         }
         response.isInternalError = isInternalError(response.mojangErrorCode)
-    
+
         return response
     }
 
@@ -192,7 +192,7 @@ export class MojangRestAPI {
      * @param actual The actual response code.
      */
     private static expectSpecificSuccess(operation: string, expected: number, actual: number): void {
-        if(actual !== expected) {
+        if (actual !== expected) {
             MojangRestAPI.logger.warn(`${operation} expected ${expected} response, received ${actual}.`)
         }
     }
@@ -209,37 +209,37 @@ export class MojangRestAPI {
      * 
      * @see https://wiki.vg/Mojang_API#API_Status_.28Removed.29
      */
-    public static async status(): Promise<MojangResponse<MojangStatus[]>>{
+    public static async status(): Promise<MojangResponse<MojangStatus[]>> {
         try {
 
             const res = await MojangRestAPI.statusClient.get<UpptimeSummary[]>({})
 
             MojangRestAPI.expectSpecificSuccess('Mojang Status', 200, res.statusCode)
 
-            for(const status of res.body) {
-                for(const mojStatus of MojangRestAPI.statuses) {
-                    if(mojStatus.service === status.slug) {
+            for (const status of res.body) {
+                for (const mojStatus of MojangRestAPI.statuses) {
+                    if (mojStatus.service === status.slug) {
                         mojStatus.status = status.status === 'up' ? MojangStatusColor.GREEN : MojangStatusColor.RED
                         break
                     }
                 }
             }
-            
+
             return {
                 data: MojangRestAPI.statuses,
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(error) {
+        } catch (error) {
 
             return MojangRestAPI.handleGotError('Mojang Status', error as RequestError, () => {
-                for(const status of MojangRestAPI.statuses){
+                for (const status of MojangRestAPI.statuses) {
                     status.status = MojangStatusColor.GREY
                 }
                 return MojangRestAPI.statuses
             })
         }
-        
+
     }
 
     /**
@@ -269,7 +269,7 @@ export class MojangRestAPI {
                 password,
                 requestUser
             }
-            if(clientToken != null){
+            if (clientToken != null) {
                 json.clientToken = clientToken
             }
 
@@ -280,7 +280,7 @@ export class MojangRestAPI {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(err) {
+        } catch (err) {
             return MojangRestAPI.handleGotError('Mojang Authenticate', err as RequestError, () => null)
         }
 
@@ -312,8 +312,8 @@ export class MojangRestAPI {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(err) {
-            if(err instanceof HTTPError && err.response.statusCode === 403) {
+        } catch (err) {
+            if (err instanceof HTTPError && err.response.statusCode === 403) {
                 return {
                     data: false,
                     responseStatus: RestResponseStatus.SUCCESS
@@ -350,21 +350,21 @@ export class MojangRestAPI {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(err) {
+        } catch (err) {
             return MojangRestAPI.handleGotError('Mojang Invalidate', err as RequestError, () => undefined)
         }
 
     }
 
     /**
-     * Refresh a user's authentication. This should be used to keep a user logged
-     * in without asking them for their credentials again. A new access token will
-     * be generated using a recent invalid access token. See Wiki for more info.
-     * 
-     * @param {string} accessToken The old access token.
-     * @param {string} clientToken The launcher's client token.
-     * @param {boolean} requestUser Optional. Adds user object to the reponse.
-     * 
+     * ユーザーの認証をリフレッシュする。これは、ユーザーに再度資格情報を求めることなく、
+     * ユーザーをログイン状態に保つために使用する必要がある。新しいアクセストークンは、
+     * 最近の無効なアクセストークンを使用して生成される。詳細についてはWikiを参照
+     *
+     * @param {string} accessToken 古いアクセストークン
+     * @param {string} clientToken ランチャーのクライアントトークン
+     * @param {boolean} requestUser オプション。レスポンスにユーザーオブジェクトを追加する
+     *
      * @see http://wiki.vg/Authentication#Refresh
      */
     public static async refresh(accessToken: string, clientToken: string, requestUser = true): Promise<MojangResponse<Session | null>> {
@@ -385,7 +385,7 @@ export class MojangRestAPI {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(err) {
+        } catch (err) {
             return MojangRestAPI.handleGotError('Mojang Refresh', err as RequestError, () => null)
         }
 

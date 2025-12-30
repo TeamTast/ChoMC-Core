@@ -37,8 +37,8 @@ process.on('message', async message => {
         } catch(fixme) {
             log.error('The reciever\'s error parser threw also, this is a bug and should be reported.', fixme)
         }
-        // Our winston logger only outputs to stdout, so this works.
-        // Write directly to stdout and await stdout flush.
+        // winstonロガーはstdoutにのみ出力するため、これで機能する
+        // stdoutに直接書き込み、フラッシュを待機する
         writeSync(process.stdout.fd, 'Error now being propagated back to the transmitter.')
         fsyncSync(process.stdout.fd)
         process.send!({
@@ -46,14 +46,14 @@ process.on('message', async message => {
             displayable
 
         } as ErrorReply)
-        // Current executor behavior is to terminate on first error.
-        // In theory, if an unhandled error reaches here the process failed.
-        // Errors that should not crash the process should be handled before it gets to this point.
+        // 現在のエグゼキュータの動作は、最初のエラーで終了することである
+        // 理論上、未処理のエラーがここに到達した場合、プロセスは失敗している
+        // プロセスをクラッシュさせるべきでないエラーは、この時点に到達する前に処理されるべきである
         process.exit(1)
     }
 })
 
-// Dump issues to the console.
+// 問題をコンソールにダンプする
 process.on('unhandledRejection', r => console.log(r))
 
 process.on('disconnect', () => {

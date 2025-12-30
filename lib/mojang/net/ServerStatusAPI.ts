@@ -23,39 +23,39 @@ export interface ServerStatus {
         text: string
     }
     favicon: string
-    modinfo?: {             // Only for modded servers
-        type: string        // Ex. FML
+    modinfo?: {             // Modサーバーのみ
+        type: string        // 例: FML
         modList: {
             modid: string
             version: string
         }[]
     }
-    retrievedAt: number     // Internal tracking
+    retrievedAt: number     // 内部追跡
 }
 
 /**
- * Get the handshake packet.
- * 
- * @param protocol The client's protocol version.
- * @param hostname The server hostname.
- * @param port The server port.
- * 
+ * ハンドシェイクパケットを取得する
+ *
+ * @param protocol クライアントのプロトコルバージョン
+ * @param hostname サーバーのホスト名
+ * @param port サーバーのポート
+ *
  * @see https://wiki.vg/Server_List_Ping#Handshake
  */
 function getHandshakePacket(protocol: number, hostname: string, port: number): Buffer {
 
     return ServerBoundPacket.build()
-        .writeVarInt(0x00)         // Packet Id 
+        .writeVarInt(0x00)         // パケットID
         .writeVarInt(protocol)
         .writeString(hostname)
         .writeUnsignedShort(port)
-        .writeVarInt(1)            // State, 1 = status
+        .writeVarInt(1)            // 状態、1 = ステータス
         .toBuffer()
 }
 
 /**
- * Get the request packet.
- * 
+ * リクエストパケットを取得する
+ *
  * @see https://wiki.vg/Server_List_Ping#Request
  */
 function getRequestPacket(): Buffer {
@@ -66,14 +66,13 @@ function getRequestPacket(): Buffer {
 }
 
 /**
- * Some servers do not return the same status object. Unify
- * the response so that the caller need only worry about
- * handling a single format.
- * 
- * @param resp The servevr status response.
+ * 一部のサーバーは同じステータスオブジェクトを返さない
+ * 呼び出し元が単一の形式の処理のみを考慮すればよいように、レスポンスを統一する
+ *
+ * @param resp サーバーステータスレスポンス
  */
 function unifyStatusResponse(resp: ServerStatus): ServerStatus {
-    // Some servers don't wrap their description in a text object.
+    // 一部のサーバーは説明をテキストオブジェクトでラップしない
     if(typeof resp.description === 'string') {
         resp.description = {
             text: resp.description

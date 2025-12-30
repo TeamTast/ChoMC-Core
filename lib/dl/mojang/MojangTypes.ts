@@ -64,7 +64,7 @@ export interface VersionJsonBase {
     }
     id: string
     /**
-     * Only on modloader version properties (extend and override base version)
+     * モッドローダーのバージョンプロパティのみ（ベースバージョンを拡張およびオーバーライド）
      */
     inheritsFrom?: string
     libraries: Library[]

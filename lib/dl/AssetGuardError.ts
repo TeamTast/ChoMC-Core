@@ -9,7 +9,7 @@ export class AssetGuardError extends Error {
 
         Error.captureStackTrace(this, this.constructor)
 
-        // Reference: https://github.com/sindresorhus/got/blob/master/source/core/index.ts#L340
+        // 参照: https://github.com/sindresorhus/got/blob/master/source/core/index.ts#L340
         if(error) {
 
             this.error = error
@@ -20,7 +20,7 @@ export class AssetGuardError extends Error {
                 const thisStackTrace = this.stack.slice(indexOfMessage).split('\n').reverse()
                 const errorStackTrace = error.stack.slice(error.stack.indexOf(error.message!) + error.message!.length).split('\n').reverse()
     
-                // Remove duplicated traces
+                // 重複したトレースを削除
                 while (errorStackTrace.length !== 0 && errorStackTrace[0] === thisStackTrace[0]) {
                     thisStackTrace.shift()
                 }
