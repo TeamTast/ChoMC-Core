@@ -28,7 +28,7 @@ export class DistributionIndexProcessor extends IndexProcessor {
     }
 
     public async validate(onStageComplete: () => Promise<void>): Promise<{ [category: string]: Asset[] }> {
-        // 配布モジュールをダウンロード前にローカル検証し、不足・不正なものを集計する。
+        // 配布モジュールをダウンロード前にローカル検証し、不足・不正なものを集計する
 
         const server: ChoServer = this.distribution.getServerById(this.serverId)!
         if (server == null) {
@@ -45,12 +45,12 @@ export class DistributionIndexProcessor extends IndexProcessor {
     }
 
     public async postDownload(): Promise<void> {
-        // ダウンロード後にモッドローダーの version.json を必ず用意する。
+        // ダウンロード後にモッドローダーの version.json を必ず用意する
         await this.loadModLoaderVersionJson()
     }
 
     private async validateModules(modules: ChoModule[], accumulator: Asset[]): Promise<void> {
-        // モジュールツリーを再帰的に巡り、ハッシュ検証して修復が必要なものを集める。
+        // モジュールツリーを再帰的に巡り、ハッシュ検証して修復が必要なものを集める
         for (const module of modules) {
             const hash = module.rawModule.artifact.MD5
 
@@ -84,7 +84,7 @@ export class DistributionIndexProcessor extends IndexProcessor {
             throw new AssetGuardError('No mod loader found!')
         }
 
-        // Fabric と FG3+ は別ファイルの version manifest を持つ。旧 Forge は jar 内に version.json を同梱。
+        // Fabric と FG3+ は別ファイルの version manifest を持つ 旧 Forge は jar 内に version.json を同梱
         if (modLoaderModule.rawModule.type === Type.Fabric
             || DistributionIndexProcessor.isForgeGradle3(server.rawServer.minecraftVersion, modLoaderModule.getMavenComponents().version)) {
             return await this.loadVersionManifest<VersionJsonBase>(modLoaderModule)
@@ -97,7 +97,7 @@ export class DistributionIndexProcessor extends IndexProcessor {
                 const data = JSON.parse((await zip.entryData('version.json')).toString('utf8')) as VersionJsonBase
                 const writePath = getVersionJsonPath(this.commonDir, data.id)
 
-                // 抽出した version.json を versions ディレクトリへ書き出し、後続処理で参照できるようにする。
+                // 抽出した version.json を versions ディレクトリへ書き出し、後続処理で参照できるようにする
                 await ensureDir(dirname(writePath))
                 await writeJson(writePath, data)
 
@@ -111,7 +111,7 @@ export class DistributionIndexProcessor extends IndexProcessor {
     }
 
     public async loadVersionManifest<T>(modLoaderModule: ChoModule): Promise<T> {
-        // モッドローダーに同梱された version manifest モジュールを探す。
+        // モッドローダーに同梱された version manifest モジュールを探す
         const versionManifstModule = modLoaderModule.subModules.find(({ rawModule: { type } }) => type === Type.VersionManifest)
         if (versionManifstModule == null) {
             throw new AssetGuardError('No mod loader version manifest module found!')
@@ -123,7 +123,7 @@ export class DistributionIndexProcessor extends IndexProcessor {
     // TODO これをユーティリティに移動するかもしれない
     public static isForgeGradle3(mcVersion: string, forgeVersion: string): boolean {
 
-        // MC1.13+ は FG3+ とみなす。それ以前は FG2 最終版との比較で判定。
+        // MC1.13+ は FG3+ とみなす それ以前は FG2 最終版との比較で判定
         if (mcVersionAtLeast('1.13', mcVersion)) {
             return true
         }
@@ -135,7 +135,7 @@ export class DistributionIndexProcessor extends IndexProcessor {
             const maxFG2 = [14, 23, 5, 2847]
             const verSplit = forgeVer.split('.').map(v => Number(v))
 
-            // 各バージョン番号を順に比較し、上回れば FG3+ と判定。
+            // 各バージョン番号を順に比較し、上回れば FG3+ と判定
             for (let i = 0; i < maxFG2.length; i++) {
                 if (verSplit[i] > maxFG2[i]) {
                     return true

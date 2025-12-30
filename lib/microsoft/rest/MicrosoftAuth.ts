@@ -132,20 +132,20 @@ export class MicrosoftAuth {
     }
 
     /**
-     * MicrosoftAuthAPI implementation of handleGotError. This function will additionally
-     * analyze the response from Microsoft and populate the microsoft-specific error information.
+     * handleGotErrorのMicrosoftAuthAPI実装。この関数は、
+     * Microsoftからのレスポンスをさらに分析し、Microsoft固有のエラー情報を入力する
      * 
-     * @param operation The operation name, for logging purposes.
-     * @param error The error that occurred.
-     * @param dataProvider A function to provide a response body.
-     * @returns A MicrosoftResponse configured with error information.
+     * @param operation ログ出力用の操作名
+     * @param error 発生したエラー
+     * @param dataProvider レスポンスボディを提供する関数
+     * @returns エラー情報で構成されたMicrosoftResponse
      */
     private static handleGotError<T>(operation: string, error: RequestError, dataProvider: () => T): MicrosoftResponse<T> {
 
         const response: MicrosoftResponse<T> = handleGotError(operation, error, MicrosoftAuth.logger, dataProvider)
 
-        if(error instanceof HTTPError) {
-            if(error.response.statusCode === 404 && error.request.requestUrl === MicrosoftAuth.MC_PROFILE_ENDPOINT) {
+        if (error instanceof HTTPError) {
+            if (error.response.statusCode === 404 && error.request.requestUrl === MicrosoftAuth.MC_PROFILE_ENDPOINT) {
                 response.microsoftErrorCode = MicrosoftErrorCode.NO_PROFILE
             } else {
                 response.microsoftErrorCode = decipherErrorCode(error.response.body)
@@ -158,12 +158,12 @@ export class MicrosoftAuth {
     }
 
     /**
-     * Acquire a Microsoft Access Token, either for the first time or through refreshing an existing token.
+     * Microsoftアクセストークンを取得する（初回または既存のトークンのリフレッシュ）
      * 
-     * @param code Authorization Code or Refresh Token
-     * @param refresh True if this is a refresh, false otherwise.
-     * @param clientId The Azure Application (client) ID.
-     * @returns A MicrosoftResponse for this operation.
+     * @param code 認証コードまたはリフレッシュトークン
+     * @param refresh リフレッシュの場合はtrue、それ以外の場合はfalse
+     * @param clientId Azureアプリケーション（クライアント）ID
+     * @returns この操作のMicrosoftResponse
      * 
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Authorization_Code_-.3E_Authorization_Token
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Refreshing_Tokens
@@ -178,7 +178,7 @@ export class MicrosoftAuth {
             }
 
             let form
-            if(refresh) {
+            if (refresh) {
                 form = {
                     ...BASE_FORM,
                     refresh_token: code,
@@ -202,16 +202,16 @@ export class MicrosoftAuth {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(error) {
+        } catch (error) {
             return MicrosoftAuth.handleGotError(`Get ${refresh ? 'Refresh' : 'Auth'} Token`, error as RequestError, () => null)
         }
     }
 
     /**
-     * Authenticate with Xbox Live with a Microsoft Access Token.
+     * Microsoftアクセストークンを使用してXbox Liveで認証する
      * 
-     * @param accessToken A Microsoft Access Token, from getAccessToken.
-     * @returns A MicrosoftResponse for this operation.
+     * @param accessToken getAccessTokenからのMicrosoftアクセストークン
+     * @returns この操作のMicrosoftResponse
      * 
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Authenticate_with_XBL
      */
@@ -238,16 +238,16 @@ export class MicrosoftAuth {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(error) {
+        } catch (error) {
             return MicrosoftAuth.handleGotError('Get XBL Token', error as RequestError, () => null)
         }
     }
 
     /**
-     * Acquire an Xbox Secure Token Service (XSTS) Token.
+     * Xbox Secure Token Service (XSTS) トークンを取得する
      * 
-     * @param xblResponse An Xbox Live token response, from getXBLToken.
-     * @returns A MicrosoftResponse for this operation.
+     * @param xblResponse getXBLTokenからのXbox Liveトークンレスポンス
+     * @returns この操作のMicrosoftResponse
      * 
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Authenticate_with_XSTS
      */
@@ -273,16 +273,16 @@ export class MicrosoftAuth {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(error) {
+        } catch (error) {
             return MicrosoftAuth.handleGotError('Get XSTS Token', error as RequestError, () => null)
         }
     }
 
     /**
-     * Authenticate with Minecraft.
+     * Minecraftで認証する
      * 
-     * @param xstsResponse An Xbox Secure Token Service (XSTS) Token response, from getXSTSToken.
-     * @returns A MicrosoftResponse for this operation.
+     * @param xstsResponse getXSTSTokenからのXbox Secure Token Service (XSTS) トークンレスポンス
+     * @returns この操作のMicrosoftResponse
      * 
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Authenticate_with_Minecraft
      */
@@ -303,7 +303,7 @@ export class MicrosoftAuth {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(error) {
+        } catch (error) {
             return MicrosoftAuth.handleGotError('Get MC Access Token', error as RequestError, () => null)
         }
     }
@@ -331,10 +331,10 @@ export class MicrosoftAuth {
     // }
 
     /**
-     * Get MC Profile Data, specifically account name and uuid.
+     * MCプロファイルデータ（特にアカウント名とuuid）を取得する
      * 
-     * @param mcAccessToken A Minecraft Access Token, from getMCAccessToken.
-     * @returns A MicrosoftResponse for this operation.
+     * @param mcAccessToken getMCAccessTokenからのMinecraftアクセストークン
+     * @returns この操作のMicrosoftResponse
      * 
      * @see https://wiki.vg/Microsoft_Authentication_Scheme#Get_the_profile
      */
@@ -353,7 +353,7 @@ export class MicrosoftAuth {
                 responseStatus: RestResponseStatus.SUCCESS
             }
 
-        } catch(error) {
+        } catch (error) {
             return MicrosoftAuth.handleGotError('Get MC Profile', error as RequestError, () => null)
         }
     }

@@ -33,29 +33,30 @@ export class MojangIndexProcessor extends IndexProcessor {
     }
 
     /**
-     * Download https://piston-meta.mojang.com/mc/game/version_manifest_v2.json
-     *   Unable to download:
-     *     Proceed, check versions directory for target version
-     *       If version.json not present, fatal error.
-     *       If version.json present, load and use.
-     *   Able to download:
-     *     Download, use in memory only.
-     *     Locate target version entry.
-     *     Extract hash
-     *     Validate local exists and matches hash
-     *       Condition fails: download
-     *         Download fails: fatal error
-     *         Download succeeds: Save to disk, continue
-     *       Passes: load from file
+    /**
+     * https://piston-meta.mojang.com/mc/game/version_manifest_v2.json をダウンロードする
+     *   ダウンロードできない場合:
+     *     続行し、ターゲットバージョンのバージョンディレクトリを確認する
+     *       version.json が存在しない場合、致命的なエラー
+     *       version.json が存在する場合、読み込んで使用する
+     *   ダウンロードできる場合:
+     *     ダウンロードし、メモリ内でのみ使用する
+     *     ターゲットバージョンのエントリを見つける
+     *     ハッシュを抽出する
+     *     ローカルに存在し、ハッシュが一致することを検証する
+     *       条件が失敗した場合: ダウンロード
+     *         ダウンロード失敗: 致命的なエラー
+     *         ダウンロード成功: ディスクに保存して続行
+     *       合格: ファイルから読み込む
      * 
-     * Version JSON in memory
-     *   Extract assetIndex
-     *     Check that local exists and hash matches
-     *       if false, download
-     *         download fails: fatal error
-     *       if true: load from disk and use
+     * メモリ内のバージョンJSON
+     *   assetIndex を抽出する
+     *     ローカルに存在し、ハッシュが一致することを確認する
+     *       falseの場合、ダウンロード
+     *         ダウンロード失敗: 致命的なエラー
+     *       trueの場合: ディスクから読み込んで使用する
      * 
-     * complete init when 3 files are validated and loaded.
+     * 3つのファイルが検証され、ロードされたときに初期化を完了する
      * 
      */
     public async init(): Promise<void> {
@@ -66,7 +67,7 @@ export class MojangIndexProcessor extends IndexProcessor {
 
     }
 
-    // Can be called without init - needed for launch process.
+    // initなしで呼び出し可能 - 起動プロセスに必要
     public async getVersionJson(): Promise<VersionJsonBase> {
         const versionManifest = await this.loadVersionManifest()
         return await this.loadVersionJson(this.version, versionManifest)
@@ -75,7 +76,7 @@ export class MojangIndexProcessor extends IndexProcessor {
     private async loadAssetIndex(versionJson: VersionJsonBase): Promise<AssetIndex> {
         const assetIndexPath = this.getAssetIndexPath(versionJson.assetIndex.id)
         const assetIndex = await this.loadContentWithRemoteFallback<AssetIndex>(versionJson.assetIndex.url, assetIndexPath, { algo: HashAlgo.SHA1, value: versionJson.assetIndex.sha1 })
-        if(assetIndex == null) {
+        if (assetIndex == null) {
             throw new AssetGuardError(`Failed to download ${versionJson.assetIndex.id} asset index.`)
         }
         return assetIndex
@@ -83,21 +84,21 @@ export class MojangIndexProcessor extends IndexProcessor {
 
     private async loadVersionJson(version: string, versionManifest: MojangVersionManifest | null): Promise<VersionJsonBase> {
         const versionJsonPath = getVersionJsonPath(this.commonDir, version)
-        if(versionManifest != null) {
+        if (versionManifest != null) {
             const versionInfo = versionManifest.versions.find(({ id }) => id === version)
-            if(versionInfo == null) {
+            if (versionInfo == null) {
                 throw new AssetGuardError(`Invalid version: ${version}.`)
             }
             const versionJson = await this.loadContentWithRemoteFallback<VersionJsonBase>(versionInfo.url, versionJsonPath, { algo: HashAlgo.SHA1, value: versionInfo.sha1 })
-            if(versionJson == null) {
+            if (versionJson == null) {
                 throw new AssetGuardError(`Failed to download ${version} json index.`)
             }
 
             return versionJson
-            
+
         } else {
             // ローカルインデックスの検索を試みる
-            if(await pathExists(versionJsonPath)) {
+            if (await pathExists(versionJsonPath)) {
                 return await readJson(versionJsonPath) as VersionJsonBase
             } else {
                 throw new AssetGuardError(`Unable to load version manifest and ${version} json index does not exist locally.`)
@@ -105,24 +106,24 @@ export class MojangIndexProcessor extends IndexProcessor {
         }
     }
 
-    private async loadContentWithRemoteFallback<T>(url: string, path: string, hash?: {algo: string, value: string}): Promise<T | null> {
+    private async loadContentWithRemoteFallback<T>(url: string, path: string, hash?: { algo: string, value: string }): Promise<T | null> {
 
         try {
-            if(await pathExists(path)) {
+            if (await pathExists(path)) {
                 const buf = await readFile(path)
-                if(hash) {
+                if (hash) {
                     const bufHash = calculateHashByBuffer(buf, hash.algo)
-                    if(bufHash === hash.value) {
+                    if (bufHash === hash.value) {
                         return JSON.parse(buf.toString()) as T
                     }
                 } else {
                     return JSON.parse(buf.toString()) as T
                 }
             }
-        } catch(error) {
+        } catch (error) {
             throw new AssetGuardError(`Failure while loading ${path}.`, error as Error)
         }
-        
+
         try {
             const res = await this.client.get<T>(url)
 
@@ -130,7 +131,7 @@ export class MojangIndexProcessor extends IndexProcessor {
             await writeFile(path, JSON.stringify(res.body))
 
             return res.body
-        } catch(error) {
+        } catch (error) {
             return handleGotError(url, error as RequestError, MojangIndexProcessor.logger, () => null).data
         }
 
@@ -140,7 +141,7 @@ export class MojangIndexProcessor extends IndexProcessor {
         try {
             const res = await this.client.get<MojangVersionManifest>(MojangIndexProcessor.VERSION_MANIFEST_ENDPOINT)
             return res.body
-        } catch(error) {
+        } catch (error) {
             return handleGotError('Load Mojang Version Manifest', error as RequestError, MojangIndexProcessor.logger, () => null).data
         }
     }
@@ -153,7 +154,7 @@ export class MojangIndexProcessor extends IndexProcessor {
         return 4
     }
 
-    public async validate(onStageComplete: () => Promise<void>): Promise<{[category: string]: Asset[]}> {
+    public async validate(onStageComplete: () => Promise<void>): Promise<{ [category: string]: Asset[] }> {
 
         const assets = await this.validateAssets(this.assetIndex)
         await onStageComplete()
@@ -183,12 +184,12 @@ export class MojangIndexProcessor extends IndexProcessor {
         const objectDir = join(this.assetPath, 'objects')
         const notValid: Asset[] = []
 
-        for(const assetEntry of Object.entries(assetIndex.objects)) {
+        for (const assetEntry of Object.entries(assetIndex.objects)) {
             const hash = assetEntry[1].hash
             const path = join(objectDir, hash.substring(0, 2), hash)
             const url = `${MojangIndexProcessor.ASSET_RESOURCE_ENDPOINT}/${hash.substring(0, 2)}/${hash}`
 
-            if(!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
+            if (!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
                 notValid.push({
                     id: assetEntry[0],
                     hash,
@@ -205,14 +206,14 @@ export class MojangIndexProcessor extends IndexProcessor {
     }
 
     private async validateLibraries(versionJson: VersionJsonBase): Promise<Asset[]> {
-        
+
         const libDir = getLibraryDir(this.commonDir)
         const notValid: Asset[] = []
 
-        for(const libEntry of versionJson.libraries) {
-            if(isLibraryCompatible(libEntry.rules, libEntry.natives)) {
+        for (const libEntry of versionJson.libraries) {
+            if (isLibraryCompatible(libEntry.rules, libEntry.natives)) {
                 let artifact: LibraryArtifact
-                if(libEntry.natives == null) {
+                if (libEntry.natives == null) {
                     artifact = libEntry.downloads.artifact
                 } else {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -225,7 +226,7 @@ export class MojangIndexProcessor extends IndexProcessor {
 
                 const path = join(libDir, artifact.path)
                 const hash = artifact.sha1
-                if(!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
+                if (!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
                     notValid.push({
                         id: libEntry.name,
                         hash,
@@ -247,7 +248,7 @@ export class MojangIndexProcessor extends IndexProcessor {
         const versionJarPath = getVersionJarPath(this.commonDir, version)
         const hash = versionJson.downloads.client.sha1
 
-        if(!await validateLocalFile(versionJarPath, HashAlgo.SHA1, hash)) {
+        if (!await validateLocalFile(versionJarPath, HashAlgo.SHA1, hash)) {
             return [{
                 id: `${version} client`,
                 hash,
@@ -268,7 +269,7 @@ export class MojangIndexProcessor extends IndexProcessor {
         const path = join(this.assetPath, 'log_configs', logFile.id)
         const hash = logFile.sha1
 
-        if(!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
+        if (!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
             return [{
                 id: logFile.id,
                 hash,

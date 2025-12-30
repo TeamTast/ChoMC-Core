@@ -1,15 +1,15 @@
-import {exec} from 'child_process'
-import {pathExists, readdir} from 'fs-extra'
+import { exec } from 'child_process'
+import { pathExists, readdir } from 'fs-extra'
 import got from 'got'
-import {Architecture, JdkDistribution, Platform} from 'chomc-distribution-types'
-import {dirname, join} from 'path'
-import {promisify} from 'util'
-import {LauncherJson} from '../model/mojang/LauncherJson'
-import {LoggerUtil} from '../util/LoggerUtil'
+import { Architecture, JdkDistribution, Platform } from 'chomc-distribution-types'
+import { dirname, join } from 'path'
+import { promisify } from 'util'
+import { LauncherJson } from '../model/mojang/LauncherJson'
+import { LoggerUtil } from '../util/LoggerUtil'
 import Registry from 'winreg'
 import semver from 'semver'
-import {Asset, HashAlgo} from '../dl'
-import {extractTarGz, extractZip} from '../common/util/FileUtils'
+import { Asset, HashAlgo } from '../dl'
+import { extractTarGz, extractZip } from '../common/util/FileUtils'
 
 const log = LoggerUtil.getLogger('JavaGuard')
 
@@ -52,21 +52,21 @@ export interface AdoptiumJdk {
     }
 }
 
-// REFERENCE
-// awt.toolkit REMOVED IN JDK 9 https://bugs.openjdk.org/browse/JDK-8225358
-// file.encoding.pkg REMOVED IN JDK 11 https://bugs.openjdk.org/browse/JDK-8199470 "Package that contains the converters that handle converting between local encodings and Unicode."
-// java.awt.graphicsenv REMOVED IN JDK 13 https://bugs.openjdk.org/browse/JDK-8130266
-// java.awt.printerjob GONE
-// java.endorsed.dirs REMOVED IN JDK 9 (DEPRECATED IN 8 https://docs.oracle.com/javase/8/docs/technotes/guides/standards/)
-// java.ext.dirs REMOVED IN JDK 9 https://openjdk.org/jeps/220
-// sun.boot.class.path REMOVED IN JDK9 https://openjdk.org/jeps/261
-// sun.desktop REMOVED IN JDK13 https://bugs.openjdk.org/browse/JDK-8222814
-// user.timezone INITIAL VALUE REMOVED IN JDK 12 https://bugs.openjdk.org/browse/JDK-8213551
+// 参照
+// awt.toolkit JDK 9で削除 https://bugs.openjdk.org/browse/JDK-8225358
+// file.encoding.pkg JDK 11で削除 https://bugs.openjdk.org/browse/JDK-8199470 "ローカルエンコーディングとUnicode間の変換を処理するコンバータを含むパッケージ"
+// java.awt.graphicsenv JDK 13で削除 https://bugs.openjdk.org/browse/JDK-8130266
+// java.awt.printerjob 削除された
+// java.endorsed.dirs JDK 9で削除 (8で非推奨 https://docs.oracle.com/javase/8/docs/technotes/guides/standards/)
+// java.ext.dirs JDK 9で削除 https://openjdk.org/jeps/220
+// sun.boot.class.path JDK 9で削除 https://openjdk.org/jeps/261
+// sun.desktop JDK 13で削除 https://bugs.openjdk.org/browse/JDK-8222814
+// user.timezone 初期値はJDK 12で削除 https://bugs.openjdk.org/browse/JDK-8213551
 
 /**
- * HotSpot Properties
+ * HotSpotプロパティ
  *
- * Obtained via java -XshowSettings:properties -version
+ * java -XshowSettings:properties -version で取得
  *
  * https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/System.html#getProperties()
  * https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
@@ -309,12 +309,12 @@ export interface HotSpotSettings {
 }
 
 /**
- * Get the target JDK's properties. Only HotSpot VMs are officially
- * supported, as properties may change between VMs. Usage of internal
- * properties should be avoided.
+ * ターゲットJDKのプロパティを取得する。HotSpot VMのみが公式に
+ * サポートされている。プロパティはVMによって変更される可能性があるため。
+ * 内部プロパティの使用は避けるべきである
  * 
- * @param execPath The path to the Java executable. 
- * @returns The parsed HotSpot VM properties.
+ * @param execPath Java実行可能ファイルへのパス
+ * @returns 解析されたHotSpot VMプロパティ
  */
 export async function getHotSpotSettings(execPath: string): Promise<HotSpotSettings | null> {
 
@@ -448,13 +448,13 @@ export function rankApplicableJvms(details: JvmDetails[]): void {
     })
 }
 
-// 最適なインストールを検出するために使用されます。
+// 最適なインストールを検出するために使用されます
 export async function discoverBestJvmInstallation(dataDir: string, semverRange: string): Promise<JvmDetails | null> {
 
-    // 候補を取得し、重複を除外します。
+    // 候補を取得し、重複を除外します
     const paths = [...new Set<string>(await getValidatableJavaPaths(dataDir))]
 
-    // VM設定を取得します。
+    // VM設定を取得します
     const resolvedSettings = await resolveJvmSettings(paths)
 
     // フィルタリング
@@ -466,14 +466,14 @@ export async function discoverBestJvmInstallation(dataDir: string, semverRange: 
     return jvmDetails.length > 0 ? jvmDetails[0] : null
 }
 
-// 選択されたjvmを検証するために使用されます。
+// 選択されたjvmを検証するために使用されます
 export async function validateSelectedJvm(path: string, semverRange: string): Promise<JvmDetails | null> {
 
     if (!await pathExists(path)) {
         return null
     }
 
-    // VM設定を取得します。
+    // VM設定を取得します
     const resolvedSettings = await resolveJvmSettings([path])
 
     // フィルタリング
@@ -637,11 +637,11 @@ export async function extractJdk(archivePath: string): Promise<string> {
 }
 
 /**
- * Returns the path of the OS-specific executable for the given Java
- * installation. Supported OS's are win32, darwin, linux.
+ * 指定されたJavaインストールのOS固有の実行可能ファイルのパスを返す
+ * サポートされているOSは win32, darwin, linux
  * 
- * @param {string} rootDir The root directory of the Java installation.
- * @returns {string} The path to the Java executable.
+ * @param {string} rootDir Javaインストールのルートディレクトリ
+ * @returns {string} Java実行可能ファイルへのパス
  */
 export function javaExecFromRoot(rootDir: string): string {
     switch (process.platform) {
@@ -657,10 +657,10 @@ export function javaExecFromRoot(rootDir: string): string {
 }
 
 /**
- * Given a Java path, ensure it points to the root.
+ * Javaパスを指定して、ルートを指していることを確認する
  * 
- * @param dir The untested path.
- * @returns The root java path.
+ * @param dir 未テストのパス
+ * @returns ルートJavaパス
  */
 export function ensureJavaDirIsRoot(dir: string): string {
     switch (process.platform) {
@@ -678,10 +678,10 @@ export function ensureJavaDirIsRoot(dir: string): string {
 }
 
 /**
- * Check to see if the given path points to a Java executable.
+ * 指定されたパスがJava実行可能ファイルを指しているかどうかを確認する
  * 
- * @param {string} pth The path to check against.
- * @returns {boolean} True if the path points to a Java executable, otherwise false.
+ * @param {string} pth チェック対象のパス
+ * @returns {boolean} パスがJava実行可能ファイルを指している場合はtrue、それ以外の場合はfalse
  */
 export function isJavaExecPath(pth: string): boolean {
     switch (process.platform) {
@@ -697,9 +697,9 @@ export function isJavaExecPath(pth: string): boolean {
 
 // TODO Move this
 /**
- * Load Mojang's launcher.json file.
+ * Mojangのlauncher.jsonファイルをロードする
  * 
- * @returns {Promise.<Object>} Promise which resolves to Mojang's launcher.json object.
+ * @returns {Promise.<Object>} Mojangのlauncher.jsonオブジェクトに解決されるPromise
  */
 export async function loadMojangLauncherData(): Promise<LauncherJson | null> {
 
@@ -713,12 +713,12 @@ export async function loadMojangLauncherData(): Promise<LauncherJson | null> {
 }
 
 /**
- * Parses a full Java Runtime version string and resolves
- * the version information. Dynamically detects the formatting
- * to use.
+ * 完全なJavaランタイムバージョン文字列を解析し、
+ * バージョン情報を解決する。使用するフォーマットを
+ * 動的に検出する
  * 
- * @param {string} verString Full version string to parse.
- * @returns Object containing the version information.
+ * @param {string} verString 解析する完全なバージョン文字列
+ * @returns バージョン情報を含むオブジェクト
  */
 export function parseJavaRuntimeVersion(verString: string): JavaVersion | null {
     if (verString.startsWith('1.')) {
@@ -729,11 +729,11 @@ export function parseJavaRuntimeVersion(verString: string): JavaVersion | null {
 }
 
 /**
- * Parses a full Java Runtime version string and resolves
- * the version information. Uses Java 8 formatting.
+ * 完全なJavaランタイムバージョン文字列を解析し、
+ * バージョン情報を解決する。Java 8のフォーマットを使用する
  * 
- * @param {string} verString Full version string to parse.
- * @returns Object containing the version information.
+ * @param {string} verString 解析する完全なバージョン文字列
+ * @returns バージョン情報を含むオブジェクト
  */
 export function parseJavaRuntimeVersionLegacy(verString: string): JavaVersion | null {
     // 1.{major}.0_{update}-b{build}

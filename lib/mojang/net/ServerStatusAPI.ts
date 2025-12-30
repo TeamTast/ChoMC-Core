@@ -73,7 +73,7 @@ function getRequestPacket(): Buffer {
  */
 function unifyStatusResponse(resp: ServerStatus): ServerStatus {
     // 一部のサーバーは説明をテキストオブジェクトでラップしない
-    if(typeof resp.description === 'string') {
+    if (typeof resp.description === 'string') {
         resp.description = {
             text: resp.description
         }
@@ -86,7 +86,7 @@ async function checkSrv(hostname: string): Promise<SrvRecord | null> {
     try {
         const records = await resolveSrv(`_minecraft._tcp.${hostname}`)
         return records.length > 0 ? records[0] : null
-    } catch(err) {
+    } catch (err) {
         return null
     }
 }
@@ -94,7 +94,7 @@ async function checkSrv(hostname: string): Promise<SrvRecord | null> {
 export async function getServerStatus(protocol: number, hostname: string, port = 25565): Promise<ServerStatus> {
 
     const srvRecord = await checkSrv(hostname)
-    if(srvRecord != null) {
+    if (srvRecord != null) {
         hostname = srvRecord.name
         port = srvRecord.port
     }
@@ -119,49 +119,49 @@ export async function getServerStatus(protocol: number, hostname: string, port =
         socket.once('data', (data) => {
 
             const inboundPacket = new ClientBoundPacket(data)
-            
-            // Length of Packet ID + Data
-            const packetLength = inboundPacket.readVarInt() // First VarInt is packet length.
-            const packetType = inboundPacket.readVarInt()   // Second VarInt is packet type.
 
-            if(packetType !== 0x00) {
+            // パケットID + データの長さ
+            const packetLength = inboundPacket.readVarInt() // 最初のVarIntはパケット長
+            const packetType = inboundPacket.readVarInt()   // 2番目のVarIntはパケットタイプ
+
+            if (packetType !== 0x00) {
                 // TODO
                 socket.destroy()
                 reject(new Error(`Invalid response. Expected packet type ${0x00}, received ${packetType}!`))
                 return
             }
 
-            // Size of packetLength VarInt is not included in the packetLength.
+            // packetLength VarIntのサイズはpacketLengthに含まれない
             bytesLeft = packetLength + ProtocolUtils.getVarIntSize(packetLength)
 
-            // Listener to keep reading until we have read all the bytes into the buffer.
+            // バッファにすべてのバイトが読み込まれるまで読み続けるリスナー
             const packetReadListener = (nextData: Buffer, doAppend: boolean): void => {
 
-                if(iterations > maxTries) {
+                if (iterations > maxTries) {
                     socket.destroy()
                     reject(new Error(`Data read from ${hostname}:${port} exceeded ${maxTries} iterations, closing connection.`))
                     return
                 }
                 ++iterations
 
-                if(bytesLeft > 0) {
+                if (bytesLeft > 0) {
                     bytesLeft -= nextData.length
-                    if(doAppend) {
+                    if (doAppend) {
                         inboundPacket.append(nextData)
                     }
                 }
 
-                // All bytes read, attempt conversion.
-                if(bytesLeft === 0) {
-            
-                    // Remainder of Buffer is the server status json.
+                // すべてのバイトが読み込まれたため、変換を試みる
+                if (bytesLeft === 0) {
+
+                    // バッファの残りはサーバーステータスJSON
                     const result = inboundPacket.readString()
 
                     try {
                         const parsed = JSON.parse(result) as ServerStatus
                         socket.end()
                         resolve(unifyStatusResponse(parsed))
-                    } catch(err) {
+                    } catch (err) {
                         socket.destroy()
                         logger.error('Failed to parse server status JSON', err)
                         reject(new Error('Failed to parse server status JSON'))
@@ -179,12 +179,12 @@ export async function getServerStatus(protocol: number, hostname: string, port =
         socket.on('error', (err: NodeJS.ErrnoException) => {
             socket.destroy()
 
-            if(err.code === 'ENOTFOUND') {
-                // ENOTFOUND = Unable to resolve.
+            if (err.code === 'ENOTFOUND') {
+                // ENOTFOUND = 解決できない
                 reject(new Error(`Server ${hostname}:${port} not found!`))
                 return
-            } else if(err.code === 'ECONNREFUSED') {
-                // ECONNREFUSED = Unable to connect to port.
+            } else if (err.code === 'ECONNREFUSED') {
+                // ECONNREFUSED = ポートに接続できない
                 reject(new Error(`Server ${hostname}:${port} refused to connect, is the port correct?`))
                 return
             } else {

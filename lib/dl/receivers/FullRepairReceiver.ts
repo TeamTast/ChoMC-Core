@@ -53,9 +53,9 @@ export class FullRepairReceiver implements Receiver {
     private assets: Asset[] = []
 
     public async execute(message: FullRepairTransmission): Promise<void> {
-        
+
         // Route to the correct function
-        switch(message.action) {
+        switch (message.action) {
             case 'validate':
                 await this.validate(message)
                 break
@@ -68,24 +68,24 @@ export class FullRepairReceiver implements Receiver {
 
     // 親切なエラーメッセージを作成する
     public async parseError(error: unknown): Promise<string | undefined> {
-        if(error instanceof RequestError) {
-            if(error?.request?.requestUrl) {
+        if (error instanceof RequestError) {
+            if (error?.request?.requestUrl) {
                 log.debug(`Error during request to ${error.request.requestUrl}`)
             }
 
-            if(error instanceof HTTPError) {
+            if (error instanceof HTTPError) {
                 log.debug('Response Details:')
                 log.debug('Body:', error.response.body)
                 log.debug('Headers:', error.response.headers)
 
                 return `Error during request (HTTP Response ${error.response.statusCode})`
-            } else if(error.name === 'RequestError') {
+            } else if (error.name === 'RequestError') {
                 return `Request received no response (${error.code}).`
-            } else if(error instanceof TimeoutError) {
+            } else if (error instanceof TimeoutError) {
                 return `Request timed out (${error.timings.phases.total}ms).`
-            } else if(error instanceof ParseError) {
+            } else if (error instanceof ParseError) {
                 return 'Request received unexepected body (Parse Error).'
-            } else if(error instanceof ReadError) {
+            } else if (error instanceof ReadError) {
                 return `Read Error (${error.code}): ${error.message}.`
             } else {
                 // CacheError, MaxRedirectsError, UnsupportedProtocolError, CancelError
@@ -101,10 +101,11 @@ export class FullRepairReceiver implements Receiver {
             message.launcherDirectory,
             message.commonDirectory,
             message.instanceDirectory,
-            null!, // The main process must refresh, this is a local pull only.
+            null!, // メインプロセスがリフレッシュを行う必要があるため、これはローカルプルのみとなる
+            null!,
             message.devMode
         )
-    
+
         const distribution = await api.getDistributionLocalLoadOnly()
         const server = distribution.getServerById(message.serverId)!
 
@@ -121,21 +122,21 @@ export class FullRepairReceiver implements Receiver {
             mojangIndexProcessor,
             distributionIndexProcessor
         ]
-    
-        // Init all
+
+        // すべて初期化
         let numStages = 0
-        for(const processor of this.processors) {
+        for (const processor of this.processors) {
             await processor.init()
             numStages += processor.totalStages()
         }
-    
+
         const assets: Asset[] = []
-        // Validate
+        // 検証
         let completedStages = 0
-        for(const processor of this.processors) {
+        for (const processor of this.processors) {
             Object.values(await processor.validate(async () => {
                 completedStages++
-                process.send!({ response: 'validateProgress', percent: Math.trunc((completedStages/numStages)*100) } as ValidateProgressReply)
+                process.send!({ response: 'validateProgress', percent: Math.trunc((completedStages / numStages) * 100) } as ValidateProgressReply)
             }))
                 .flatMap(asset => asset)
                 .forEach(asset => assets.push(asset))
@@ -148,30 +149,30 @@ export class FullRepairReceiver implements Receiver {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public async download(_message: DownloadTransmission): Promise<void> {
         const expectedTotalSize = getExpectedDownloadSize(this.assets)
-    
+
         log.debug('Expected download size ' + expectedTotalSize)
         this.assets.forEach(({ id }) => log.debug(`Asset Requires Download: ${id}`))
 
         // 整数のみを送信することでIPCチャネルの負荷を軽減する
         let currentPercent = 0
         const receivedEach = await downloadQueue(this.assets, received => {
-            const nextPercent = Math.trunc((received/expectedTotalSize)*100)
-            if(currentPercent !== nextPercent) {
+            const nextPercent = Math.trunc((received / expectedTotalSize) * 100)
+            if (currentPercent !== nextPercent) {
                 currentPercent = nextPercent
                 process.send!({ response: 'downloadProgress', percent: currentPercent } as DownloadProgressReply)
             }
         })
 
-        for(const asset of this.assets) {
-            if(asset.size !== receivedEach[asset.id]) {
+        for (const asset of this.assets) {
+            if (asset.size !== receivedEach[asset.id]) {
                 log.warn(`Asset ${asset.id} declared a size of ${asset.size} bytes, but ${receivedEach[asset.id]} were received!`)
-                if(!await validateLocalFile(asset.path, asset.algo, asset.hash)) {
+                if (!await validateLocalFile(asset.path, asset.algo, asset.hash)) {
                     log.error(`Hashes do not match, ${asset.id} may be corrupted.`)
                 }
             }
         }
 
-        for(const processor of this.processors) {
+        for (const processor of this.processors) {
             await processor.postDownload()
         }
 

@@ -140,9 +140,9 @@ export class MojangRestAPI {
     }
 
     /**
-     * Converts a Mojang status color to a hex value. Valid statuses
-     * are 'green', 'yellow', 'red', and 'grey'. Grey is a custom status
-     * to our project which represents an unknown status.
+     * Mojangステータスの色をHEX値に変換する。有効なステータスは
+     * 'green', 'yellow', 'red', 'grey' である。Greyは不明なステータスを表す
+     * カスタムステータスである
      */
     public static statusToHex(status: string): string {
         switch (status.toLowerCase() as MojangStatusColor) {
@@ -159,13 +159,13 @@ export class MojangRestAPI {
     }
 
     /**
-     * MojangRestAPI implementation of handleGotError. This function will additionally
-     * analyze the response from Mojang and populate the mojang-specific error information.
+     * handleGotErrorのMojangRestAPI実装。この関数は、
+     * Mojangからのレスポンスをさらに分析し、mojang固有のエラー情報を入力する
      * 
-     * @param operation The operation name, for logging purposes.
-     * @param error The error that occurred.
-     * @param dataProvider A function to provide a response body.
-     * @returns A MojangResponse configured with error information.
+     * @param operation ログ出力用の操作名
+     * @param error 発生したエラー
+     * @param dataProvider レスポンスボディを提供する関数
+     * @returns エラー情報で構成されたMojangResponse
      */
     private static handleGotError<T>(operation: string, error: RequestError, dataProvider: () => T): MojangResponse<T> {
 
@@ -184,12 +184,12 @@ export class MojangRestAPI {
     }
 
     /**
-     * Utility function to report an unexpected success code. An unexpected
-     * code may indicate an API change.
+     * 予期しない成功コードを報告するユーティリティ関数。予期しない
+     * コードはAPIの変更を示す可能性がある
      * 
-     * @param operation The operation name.
-     * @param expected The expected response code.
-     * @param actual The actual response code.
+     * @param operation 操作名
+     * @param expected 期待されるレスポンスコード
+     * @param actual 実際のレスポンスコード
      */
     private static expectSpecificSuccess(operation: string, expected: number, actual: number): void {
         if (actual !== expected) {
@@ -198,14 +198,13 @@ export class MojangRestAPI {
     }
 
     /**
-     * Retrieves the status of Mojang's services.
-     * The response is condensed into a single object. Each service is
-     * a key, where the value is an object containing a status and name
-     * property.
+     * Mojangサービスのステータスを取得する
+     * レスポンスは単一のオブジェクトに凝縮される。各サービスはキーであり、
+     * 値はステータスと名前プロパティを含むオブジェクトである
      * 
-     * Currently uses an in house daily ping. A daily ping is not super useful,
-     * so this may be refactored at a later date. The feature was originally
-     * built on Mojang's status API which has since been removed.
+     * 現在、社内の毎日のpingを使用している。毎日のpingはあまり役に立たないため、
+     * 後日リファクタリングされる可能性がある。この機能は元々、
+     * その後削除されたMojangのステータスAPI上に構築されていた
      * 
      * @see https://wiki.vg/Mojang_API#API_Status_.28Removed.29
      */
@@ -243,13 +242,13 @@ export class MojangRestAPI {
     }
 
     /**
-     * Authenticate a user with their Mojang credentials.
+     * Mojang資格情報を使用してユーザーを認証する
      * 
-     * @param {string} username The user's username, this is often an email.
-     * @param {string} password The user's password.
-     * @param {string} clientToken The launcher's Client Token.
-     * @param {boolean} requestUser Optional. Adds user object to the reponse.
-     * @param {Object} agent Optional. Provided by default. Adds user info to the response.
+     * @param {string} username ユーザーのユーザー名（多くの場合メールアドレス）
+     * @param {string} password ユーザーのパスワード
+     * @param {string} clientToken ランチャーのクライアントトークン
+     * @param {boolean} requestUser オプション。レスポンスにユーザーオブジェクトを追加する
+     * @param {Object} agent オプション。デフォルトで提供される。レスポンスにユーザー情報を追加する
      * 
      * @see http://wiki.vg/Authentication#Authenticate
      */
@@ -287,11 +286,11 @@ export class MojangRestAPI {
     }
 
     /**
-     * Validate an access token. This should always be done before launching.
-     * The client token should match the one used to create the access token.
+     * アクセストークンを検証する。これは常に起動前に行う必要がある
+     * クライアントトークンは、アクセストークンの作成に使用されたものと一致する必要がある
      * 
-     * @param {string} accessToken The access token to validate.
-     * @param {string} clientToken The launcher's client token.
+     * @param {string} accessToken 検証するアクセストークン
+     * @param {string} clientToken ランチャーのクライアントトークン
      * 
      * @see http://wiki.vg/Authentication#Validate
      */
@@ -325,11 +324,11 @@ export class MojangRestAPI {
     }
 
     /**
-     * Invalidates an access token. The clientToken must match the
-     * token used to create the provided accessToken.
+     * アクセストークンを無効にする。clientTokenは、
+     * 提供されたaccessTokenの作成に使用されたトークンと一致する必要がある
      * 
-     * @param {string} accessToken The access token to invalidate.
-     * @param {string} clientToken The launcher's client token.
+     * @param {string} accessToken 無効にするアクセストークン
+     * @param {string} clientToken ランチャーのクライアントトークン
      * 
      * @see http://wiki.vg/Authentication#Invalidate
      */
@@ -359,7 +358,7 @@ export class MojangRestAPI {
     /**
      * ユーザーの認証をリフレッシュする。これは、ユーザーに再度資格情報を求めることなく、
      * ユーザーをログイン状態に保つために使用する必要がある。新しいアクセストークンは、
-     * 最近の無効なアクセストークンを使用して生成される。詳細についてはWikiを参照
+     * 最近の無効なアクセストークンを使用して生成される 詳細についてはWikiを参照
      *
      * @param {string} accessToken 古いアクセストークン
      * @param {string} clientToken ランチャーのクライアントトークン

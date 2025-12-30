@@ -27,15 +27,16 @@ export class DistributionAPI {
         private commonDir: string,
         private instanceDir: string,
         private remoteUrl: string,
+        private accessToken: string,
         private devMode: boolean
     ) {
-        // 本番/開発の両ディストロファイルパスを保持して後続で使う。
+        // 本番/開発の両ディストロファイルパスを保持して後続で使う
         this.distroPath = resolve(launcherDirectory, this.DISTRO_FILE)
         this.distroDevPath = resolve(launcherDirectory, this.DISTRO_FILE_DEV)
     }
 
     public async getDistribution(): Promise<ChoDistribution> {
-        // リモート/ローカルから遅延ロードし、Cho ラッパーをキャッシュする。
+        // リモート/ローカルから遅延ロードし、Cho ラッパーをキャッシュする
         if (this.rawDistribution == null) {
             this.rawDistribution = await this.loadDistribution()
             this.distribution = new ChoDistribution(this.rawDistribution, this.commonDir, this.instanceDir)
@@ -44,7 +45,7 @@ export class DistributionAPI {
     }
 
     public async getDistributionLocalLoadOnly(): Promise<ChoDistribution> {
-        // ディスクのみから読み込む（開発モード向け）。無ければ例外。
+        // ディスクのみから読み込む（開発モード向け）無ければ例外
         if (this.rawDistribution == null) {
             const x = await this.pullLocal()
             if (x == null) {
@@ -57,7 +58,7 @@ export class DistributionAPI {
     }
 
     public async refreshDistributionOrFallback(): Promise<ChoDistribution> {
-        // リフレッシュを試み、リモート・ローカル共に失敗したら現在のメモリ上のものを維持。
+        // リフレッシュを試み、リモート・ローカル共に失敗したら現在のメモリ上のものを維持
         const distro = await this._loadDistributionNullable()
 
         if (distro == null) {
@@ -72,7 +73,7 @@ export class DistributionAPI {
     }
 
     public toggleDevMode(dev: boolean): void {
-        // 開発/本番の読み込み先を切り替えるだけ（自動再読込はしない）。
+        // 開発/本番の読み込み先を切り替えるだけ（自動再読込はしない）
         this.devMode = dev
     }
 
@@ -98,7 +99,7 @@ export class DistributionAPI {
 
         if (!this.devMode) {
 
-            // リモートを優先。成功時はオフライン用にディスクへ書き出す。
+            // リモートを優先 成功時はオフライン用にディスクへ書き出す
             distro = (await this.pullRemote()).data
             if (distro == null) {
                 distro = await this.pullLocal()
@@ -107,7 +108,7 @@ export class DistributionAPI {
             }
 
         } else {
-            // 開発モードはローカル（dev）コピーのみ参照。
+            // 開発モードはローカル（dev）コピーのみ参照
             distro = await this.pullLocal()
         }
 
@@ -118,7 +119,15 @@ export class DistributionAPI {
 
         try {
 
-            const res = await got.get<Distribution>(this.remoteUrl, { responseType: 'json' })
+            const res = await got.get<Distribution>(
+                this.remoteUrl,
+                {
+                    responseType: 'json',
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`
+                    }
+                }
+            )
 
             return {
                 data: res.body,
@@ -134,7 +143,7 @@ export class DistributionAPI {
     }
 
     protected async writeDistributionToDisk(distribution: Distribution): Promise<void> {
-        // 取得した最新ディストロをキャッシュし、オフラインでも使えるようにする。
+        // 取得した最新ディストロをキャッシュし、オフラインでも使えるようにする
         await writeJson(this.distroPath, distribution)
     }
 

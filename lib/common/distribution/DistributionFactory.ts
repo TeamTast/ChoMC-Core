@@ -17,7 +17,7 @@ export class ChoDistribution {
         commonDir: string,
         instanceDir: string
     ) {
-        // メインサーバーを決定（なければ先頭）し、サーバーのラッパーを構築。
+        // メインサーバーを決定（なければ先頭）し、サーバーのラッパーを構築
         this.resolveMainServerIndex()
         this.servers = this.rawDistribution.servers.map(s => new ChoServer(s, commonDir, instanceDir))
     }
@@ -70,12 +70,12 @@ export class ChoServer {
         this.hostname = hostname
         this.port = port
         this.effectiveJavaOptions = this.parseEffectiveJavaOptions()
-        // 検証・ダウンロードで参照が安定するよう、先にモジュールツリーを構築。
+        // 検証・ダウンロードで参照が安定するよう、先にモジュールツリーを構築
         this.modules = rawServer.modules.map(m => new ChoModule(m, rawServer.id, commonDir, instanceDir))
     }
 
     private parseAddress(): { hostname: string, port: number } {
-        // 必要なら SRV 参照もここで処理する想定。
+        // 必要なら SRV 参照もここで処理する想定
         if (this.rawServer.address.includes(':')) {
             const pieces = this.rawServer.address.split(':')
             const port = Number(pieces[1])
@@ -120,7 +120,7 @@ export class ChoServer {
             }
         }
 
-        // MCバージョンとプラットフォームから導出したデフォルトで未設定項目を補完。
+        // MCバージョンとプラットフォームから導出したデフォルトで未設定項目を補完
         return this.defaultUndefinedJavaOptions(merged)
     }
 
@@ -178,11 +178,11 @@ export class ChoModule {
 
     private resolveMavenComponents(): MavenComponents {
 
-        // Files need not have a maven identifier if they provide a path.
+        // パスが提供されている場合、ファイルはmaven識別子を持つ必要はない
         if (this.rawModule.type === Type.File && this.rawModule.artifact.path != null) {
             return null! as MavenComponents
         }
-        // Version Manifests never provide a maven identifier.
+        // バージョンマニフェストはmaven識別子を提供しない
         if (this.rawModule.type === Type.VersionManifest) {
             return null! as MavenComponents
         }
@@ -243,13 +243,13 @@ export class ChoModule {
                 return join(commonDir, 'libraries', relativePath)
             case Type.ForgeMod:
             case Type.LiteMod:
-                // TODO いずれ /mods/forge に移動する..
+                // TODO いずれ /mods/forge に移動する
                 return join(commonDir, 'modstore', relativePath)
             case Type.FabricMod:
                 return join(commonDir, 'mods', 'fabric', relativePath)
             case Type.File:
             default:
-                // インスタンス単位のファイルはサーバーディレクトリ配下に置く。
+                // インスタンス単位のファイルはサーバーディレクトリ配下に置く
                 return join(instanceDir, this.serverId, relativePath)
         }
 
